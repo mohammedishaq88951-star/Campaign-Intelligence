@@ -1,0 +1,1878 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Campaign Intelligence | Marketing Analytics &amp; Campaign Management Platform</title>
+<meta name="description" content="Campaign Intelligence: marketing analytics and campaign management platform with campaign performance, UTM management, event tracking, diagnostics and tracking QA.">
+<meta name="author" content="Mohammed Ishaq">
+<style>
+:root{
+  --bg:#f4f6fa;--surface:#fff;--sub:#f8fafc;--line:#e4e8f0;--line2:#eef1f6;
+  --ink:#0f1f3d;--ink2:#3a4a66;--mut:#68758d;
+  --blue:#2563eb;--blue-d:#1d4ed8;--blue-l:#e8f0fe;--navy:#0f1f3d;
+  --ok:#0f7a4a;--ok-bg:#e5f5ec;--warn:#8a5200;--warn-bg:#fff3d6;--err:#b42318;--err-bg:#fdeceb;
+  --rail:64px;--rail-x:208px;--top:52px;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{scroll-behavior:smooth}
+body{margin:0;font:14px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4,p{margin:0}
+h2{font-size:1.2rem;font-weight:650;letter-spacing:-.01em}
+h3{font-size:.9rem;font-weight:650}
+h4{font-size:.74rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--mut)}
+code,pre{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.84em}
+code{background:#eef2f9;border-radius:4px;padding:.08em .35em;color:#12295a;word-break:break-word}
+pre{background:#0f1f3d;color:#dbe7ff;border-radius:8px;padding:12px 14px;overflow-x:auto;margin:0;line-height:1.55}
+pre code{background:none;color:inherit;padding:0}
+a{color:var(--blue)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.skip{position:absolute;left:-999px;top:0;background:var(--navy);color:#fff;padding:8px 12px;z-index:200}
+.skip:focus{left:8px;top:8px}
+:focus-visible{outline:2px solid #6e9bf0;outline-offset:2px}
+.ic{width:18px;height:18px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.muted{color:var(--mut)}
+.small{font-size:.8rem}
+
+/* shell + rail */
+.shell{display:grid;grid-template-columns:var(--rail) minmax(0,1fr);min-height:100vh}
+.shell.expanded{grid-template-columns:var(--rail-x) minmax(0,1fr)}
+.rail{position:sticky;top:0;height:100vh;background:var(--surface);border-right:1px solid var(--line);padding:12px 10px;display:flex;flex-direction:column;gap:8px;z-index:40}
+.rail-logo{display:flex;align-items:center;justify-content:center;height:40px;margin-bottom:6px}
+.logo-mark{width:34px;height:34px;border-radius:9px;background:var(--navy);display:grid;place-items:center;color:#fff}
+.logo-mark .ic{width:18px;height:18px;stroke-width:2.2}
+.rail-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
+.rail-btn{position:relative;width:100%;height:40px;display:flex;align-items:center;gap:12px;padding:0 11px;border:0;border-radius:9px;background:transparent;color:var(--ink2);font:inherit;font-weight:500;cursor:pointer;text-align:left}
+.rail-btn:hover{background:#f0f3f9;color:var(--ink)}
+.rail-btn.active{background:var(--blue-l);color:var(--blue-d)}
+.rail-btn.active::before{content:"";position:absolute;left:-10px;top:9px;bottom:9px;width:3px;border-radius:0 3px 3px 0;background:var(--blue)}
+.rail-btn .lbl,.rail-btn .lbl-s{display:none;white-space:nowrap;font-size:13px}
+.shell.expanded .rail-btn .lbl{display:inline}
+.rail-btn[data-label]::after{content:attr(data-label);position:absolute;left:calc(100% + 12px);top:50%;transform:translateY(-50%);background:var(--navy);color:#fff;font-size:12px;font-weight:500;padding:5px 9px;border-radius:6px;white-space:nowrap;opacity:0;visibility:hidden;pointer-events:none;z-index:60}
+.shell:not(.expanded) .rail-btn:hover::after,.shell:not(.expanded) .rail-btn:focus-visible::after{opacity:1;visibility:visible}
+.rail-sep{height:1px;background:var(--line);margin:6px 4px}
+.rail-foot{margin-top:auto}
+.rail-toggle .ic{transition:none}
+.shell.expanded .rail-toggle .ic{transform:rotate(180deg)}
+
+/* topbar */
+.main-col{min-width:0}
+.topbar{position:sticky;top:0;z-index:30;height:var(--top);background:rgba(255,255,255,.96);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 22px}
+.brand{display:flex;align-items:baseline;gap:10px;min-width:0}
+.brand strong{font-size:15px;font-weight:700;letter-spacing:-.01em;white-space:nowrap}
+.brand span{color:var(--mut);font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top-right{display:flex;align-items:center;gap:10px}
+.pill{display:inline-flex;align-items:center;gap:6px;background:var(--warn-bg);color:var(--warn);font-size:11.5px;font-weight:600;border-radius:99px;padding:3px 10px;white-space:nowrap}
+.content{padding:18px 22px 48px;max-width:1380px}
+.page-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.page-sub{color:var(--mut);font-size:12.5px;margin-top:2px}
+.ctl-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+
+/* controls */
+.sel,.inp{height:32px;font:inherit;font-size:13px;color:var(--ink);background:#fff;border:1px solid #d5dbe6;border-radius:8px;padding:0 10px}
+.inp.full{width:100%;height:34px}
+.inp::placeholder{color:#8b97ac;opacity:1}
+.sel:focus,.inp:focus{border-color:var(--blue);outline:2px solid #cfe0ff;outline-offset:0}
+.search{position:relative;display:inline-flex;align-items:center}
+.search .ic{position:absolute;left:9px;width:15px;height:15px;color:var(--mut);pointer-events:none}
+.search .inp{padding-left:30px;width:210px}
+.btn{height:32px;display:inline-flex;align-items:center;gap:6px;font:inherit;font-size:13px;font-weight:600;border-radius:8px;padding:0 12px;border:1px solid #d5dbe6;background:#fff;color:var(--ink);cursor:pointer;white-space:nowrap}
+.btn:hover{background:#f3f6fb}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn .ic{width:15px;height:15px}
+.btn-primary{background:var(--blue);border-color:var(--blue);color:#fff}
+.btn-primary:hover{background:var(--blue-d)}
+.btn-dark{background:var(--navy);border-color:var(--navy);color:#fff}
+.btn-dark:hover{background:#1b2f57}
+.btn-ghost{border-color:transparent;background:transparent}
+.static-chip{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--ink2);background:#fff;border:1px solid var(--line);border-radius:8px;height:32px;padding:0 10px}
+.tag-sim{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--warn);background:var(--warn-bg);border-radius:4px;padding:1px 6px}
+
+/* info tooltip */
+.info{position:relative;display:inline-grid;place-items:center;width:15px;height:15px;color:#8a97ad;cursor:help;vertical-align:middle}
+.info .ic{width:14px;height:14px}
+.info:hover,.info:focus{color:var(--blue)}
+.tip{cursor:help}
+.tipbox{position:fixed;left:0;top:0;z-index:400;max-width:240px;background:var(--navy);color:#fff;font:500 12px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;text-transform:none;letter-spacing:0;padding:7px 10px;border-radius:6px;text-align:left;box-shadow:0 4px 14px rgba(15,31,61,.25);opacity:0;visibility:hidden;pointer-events:none}
+.tipbox.on{opacity:1;visibility:visible}
+.pill .short{display:none}
+.guide{display:grid;grid-template-columns:auto minmax(0,1fr);gap:9px 16px;margin:0;font-size:13px}
+.guide dt{font-weight:650;color:var(--navy);white-space:nowrap}
+.guide dd{margin:0;color:var(--ink2)}
+.about-line{margin-top:28px;padding-top:12px;border-top:1px solid var(--line);font-size:12px;color:var(--mut);display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.btn-icon{width:32px;padding:0;justify-content:center}
+.pres-case dd.nm{font-weight:600}
+
+/* cards & grids */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px}
+.card-h{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:12px 14px 0}
+.card-h h3{display:flex;align-items:center;gap:6px}
+.card-b{padding:12px 14px 14px}
+.g2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.g3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.g-hl{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1.5fr);gap:12px}
+.stack>*+*{margin-top:12px}
+.kpis{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:10px}
+.kpis .kpi{grid-column:span 3}
+.kpis .kpi.rate{grid-column:span 4}
+@media (min-width:1560px){.kpis{grid-template-columns:repeat(7,minmax(0,1fr))}.kpis .kpi,.kpis .kpi.rate{grid-column:auto}}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:11px 13px}
+.kpi .k{display:flex;align-items:center;gap:4px;font-size:10.5px;color:var(--mut);font-weight:600;text-transform:uppercase;letter-spacing:.02em;white-space:nowrap;min-width:0}
+.kpi .v{font-size:1.32rem;font-weight:700;color:var(--navy);margin-top:3px;font-variant-numeric:tabular-nums;letter-spacing:-.01em;white-space:nowrap}
+.kpi .f{font-size:11.5px;color:var(--mut);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kpi.rate{background:#f6f9ff;border-color:#d4e1fb}
+.hl{padding:13px 15px}
+.hl .k{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--mut)}
+.hl .nm{font-size:1.08rem;font-weight:700;margin:5px 0 2px;color:var(--navy)}
+.hl .vv{font-size:12.5px;color:var(--ink2)}
+.hl .chip{margin-top:8px}
+.chip{display:inline-block;border-radius:99px;padding:1px 9px;font-size:11.5px;font-weight:600;background:var(--blue-l);color:var(--blue-d);white-space:nowrap}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips .chip{background:#eef2f9;color:var(--ink2);font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-weight:500;font-size:11.5px}
+.insights{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:7px;font-size:13px;color:var(--ink2)}
+.insights li{position:relative;padding-left:16px}
+.insights li::before{content:"";position:absolute;left:2px;top:.55em;width:6px;height:6px;border-radius:50%;background:var(--blue)}
+.chart-box{position:relative;height:236px}
+.chart-box.tall{height:268px}
+.chart-box[data-nochart] canvas{display:none}
+.chart-box[data-nochart]::after{content:"Chart unavailable. Chart.js loads from a CDN and needs an internet connection.";position:absolute;inset:0;display:grid;place-items:center;text-align:center;color:var(--mut);font-size:12.5px;padding:20px}
+
+/* tables */
+.table-wrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th,td{padding:8px 12px;text-align:left;border-bottom:1px solid var(--line2);white-space:nowrap}
+th{background:var(--sub);color:var(--mut);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid var(--line)}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+td.wrap,th.wrap{white-space:normal;min-width:190px}
+td.wrap{overflow-wrap:anywhere}
+tbody tr:hover td{background:#fafcff}
+tbody tr:last-child td{border-bottom:0}
+tfoot td{background:var(--sub);font-weight:700;border-top:1px solid var(--line);border-bottom:0}
+.tbl-foot{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:8px 14px;border-top:1px solid var(--line2);font-size:11.5px;color:var(--mut)}
+.ok-t{color:var(--ok)}.bad-t{color:var(--err)}
+
+/* folds */
+details.fold{background:var(--surface);border:1px solid var(--line);border-radius:10px;margin-top:12px}
+details.fold>summary{cursor:pointer;padding:11px 14px;font-weight:650;font-size:13px;list-style:none;display:flex;align-items:center;justify-content:space-between;gap:8px}
+details.fold>summary::-webkit-details-marker{display:none}
+details.fold>summary::after{content:"";width:7px;height:7px;border-right:2px solid var(--mut);border-bottom:2px solid var(--mut);transform:rotate(45deg);margin-right:3px;flex:none}
+details.fold[open]>summary::after{transform:rotate(-135deg)}
+details.fold>.fold-b{padding:2px 14px 14px;font-size:13px;color:var(--ink2)}
+details.mini{margin-top:8px;font-size:12.5px;color:var(--ink2)}
+details.mini>summary{cursor:pointer;color:var(--blue-d);font-weight:600;font-size:12.5px}
+details.mini ol,details.mini ul{margin:6px 0 0;padding-left:1.1rem}
+
+/* UTM */
+.g-utm{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:12px;align-items:start}
+.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
+.field{display:flex;flex-direction:column;gap:4px}
+.field.full{grid-column:1/-1}
+label,.lbl{font-weight:600;font-size:12.5px;color:var(--ink)}
+.opt{font-weight:400;color:var(--mut)}
+.hint{font-size:11.5px;color:var(--mut)}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.status{display:inline-flex;align-items:center;gap:7px;font-weight:600;font-size:12.5px;border-radius:99px;padding:3px 11px}
+.status::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.status.ok{background:var(--ok-bg);color:var(--ok)}
+.status.warn{background:var(--warn-bg);color:var(--warn)}
+.status.err{background:var(--err-bg);color:var(--err)}
+.issues{list-style:none;margin:10px 0 12px;padding:0;display:flex;flex-direction:column;gap:6px}
+.issues li{display:flex;gap:9px;align-items:flex-start;border-radius:8px;padding:6px 10px;font-size:12.5px}
+.issues li>span:last-child{min-width:0;overflow-wrap:anywhere}
+.issues code{background:rgba(255,255,255,.75);color:inherit}
+.card-b>.table-wrap:last-child{border-radius:0 0 9px 9px}
+.issues .b{flex:none;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;border-radius:4px;padding:1px 6px;margin-top:2px;background:#fff}
+.issues .error{background:var(--err-bg);color:#7a1810}.issues .error .b{color:var(--err)}
+.issues .warn{background:var(--warn-bg);color:#5b3a00}.issues .warn .b{color:var(--warn)}
+.issues .note{background:var(--blue-l);color:#143a99}.issues .note .b{color:var(--blue-d)}
+.issues .ok{background:var(--ok-bg);color:#0b5a37}.issues .ok .b{color:var(--ok)}
+#u-issues{margin:4px 0 10px}
+.vgroup h4{display:flex;align-items:center;gap:7px;margin:10px 0 6px;flex-wrap:wrap}
+.vgroup h4 .cnt{display:inline-grid;place-items:center;min-width:18px;height:18px;border-radius:9px;padding:0 5px;font-size:11px;background:#fff;border:1px solid currentColor}
+.vgroup h4 .vsub{text-transform:none;letter-spacing:0;font-weight:500;color:var(--mut);font-size:11.5px}
+.vgroup.err h4{color:var(--err)}.vgroup.rec h4{color:var(--warn)}
+.vgroup .issues{margin:0 0 4px}
+tr.unset td{background:#fbfcfe}tr.unset code{opacity:.65}
+.url-box{background:#0f1f3d;color:#dbe7ff;border-radius:8px;padding:11px 13px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12.5px;word-break:break-all;min-height:44px}
+.url-box.empty{color:#8ea3c9;font-style:italic;font-family:inherit}
+.copy-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:9px}
+.copy-msg{font-size:12.5px;color:var(--ok);font-weight:600}
+.parse-row{display:flex;gap:8px;margin-top:14px;padding-top:12px;border-top:1px solid var(--line2)}
+.parse-row .inp{flex:1;min-width:0}
+.ex-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.ex{padding:12px 14px}
+.ex dl{margin:8px 0;display:grid;grid-template-columns:auto 1fr;gap:2px 10px;font-size:12.5px}
+.ex dt{color:var(--mut)}.ex dd{margin:0}
+.ex .u{font-size:11.5px;word-break:break-all;color:var(--ink2);background:var(--sub);border:1px solid var(--line2);border-radius:6px;padding:6px 8px;margin-bottom:8px}
+.ref-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;font-size:12.5px}
+.ref-grid b{display:block;margin-bottom:2px;color:var(--navy)}
+
+/* funnel */
+.fn{display:flex;align-items:stretch}
+.fn-item{flex:1;min-width:0;display:flex}
+.fn-line{flex:0 0 24px;align-self:center;height:2px;background:#c4cedf;position:relative}
+.fn-line::after{content:"";position:absolute;right:-1px;top:-4px;border-left:7px solid #c4cedf;border-top:5px solid transparent;border-bottom:5px solid transparent}
+.fn-node{flex:1;width:100%;display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center;background:#fff;border:1.5px solid var(--line);border-radius:10px;padding:12px 8px;font:inherit;color:inherit;cursor:pointer}
+div.fn-node{cursor:default}
+button.fn-node:hover{border-color:#a9c2f6}
+.fn-node[aria-pressed=true]{border-color:var(--blue);background:var(--blue-l);box-shadow:0 0 0 3px #d9e6ff}
+.fn-ic{width:38px;height:38px;border-radius:50%;background:#eef2f9;color:var(--ink2);display:grid;place-items:center;margin-bottom:2px}
+.fn-ic .ic{width:19px;height:19px}
+.fn-node[aria-pressed=true] .fn-ic{background:var(--blue);color:#fff}
+.fn-node[aria-pressed=true] .layer{background:#fff}
+.fn-t{font-weight:650;font-size:13px;color:var(--navy)}
+.fn-c{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:11px;color:var(--mut);word-break:break-all}
+.layer{display:inline-block;font-size:10.5px;font-weight:700;border-radius:99px;padding:1px 8px;margin-top:2px}
+.layer.l-web{background:#e8eefb;color:#1e3a8a}
+.layer.l-conv{background:var(--ok-bg);color:var(--ok)}
+.layer.l-crm{background:#ece9fb;color:#3b2a96}
+.layer.l-sales{background:#dfe6f3;color:var(--navy)}
+.ev-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;margin-top:12px}
+.kv{display:flex;flex-direction:column;gap:12px}
+.kv h4{margin-bottom:3px}
+.kv p{font-size:13px;color:var(--ink2)}
+.flow{counter-reset:f;list-style:none;margin:8px 0 0;padding:0;display:flex;flex-direction:column;gap:8px}
+.flow li{counter-increment:f;position:relative;padding:8px 10px 8px 40px;background:var(--sub);border:1px solid var(--line2);border-radius:8px;font-size:12.5px}
+.flow li::before{content:counter(f);position:absolute;left:10px;top:8px;width:21px;height:21px;border-radius:50%;background:var(--navy);color:#fff;display:grid;place-items:center;font-size:11.5px;font-weight:700}
+
+/* troubleshooting */
+.case-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:12px}
+.case-card{display:flex;gap:11px;align-items:flex-start;text-align:left;background:#fff;border:1.5px solid var(--line);border-radius:10px;padding:12px 14px;font:inherit;color:inherit;cursor:pointer}
+.case-card:hover{border-color:#a9c2f6}
+.case-card[aria-pressed=true]{border-color:var(--blue);background:var(--blue-l);box-shadow:0 0 0 3px #d9e6ff}
+.case-card .cic{flex:none;width:34px;height:34px;border-radius:9px;background:#eef2f9;color:var(--ink2);display:grid;place-items:center}
+.case-card[aria-pressed=true] .cic{background:var(--blue);color:#fff}
+.case-card b{display:block;font-size:13.5px;color:var(--navy)}
+.case-card span.s{display:block;font-size:12px;color:var(--mut);margin-top:1px}
+.alert{display:flex;gap:10px;align-items:flex-start;background:var(--err-bg);border:1px solid #f5c9c5;border-radius:10px;padding:10px 14px;margin-bottom:12px;color:#7a1810}
+.alert .ic{margin-top:2px;color:var(--err)}
+.alert h4{color:var(--err);margin-bottom:2px}
+.alert p{font-size:13px}
+.d-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.d-card{padding:12px 14px}
+.d-card h4{margin-bottom:7px}
+.d-card ul,.d-card ol{margin:0;padding-left:1.05rem;font-size:12.5px;color:var(--ink2)}
+.d-card li{margin-bottom:4px}
+.d-card p{font-size:12.5px;color:var(--ink2)}
+.d-card.fix{border-left:3px solid var(--ok)}
+.d-card.ver ol{list-style:none;padding:0}
+.d-card.ver li{position:relative;padding-left:22px}
+.d-card.ver li::before{content:"";position:absolute;left:2px;top:3px;width:12px;height:12px;border:1.5px solid #9fb0cb;border-radius:3px}
+.checker{margin-top:12px}
+.checker .row{display:flex;gap:8px;margin:8px 0}
+.checker .row .inp{flex:1;min-width:0}
+
+/* QA */
+.qa-top{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px;align-items:center}
+.qa-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:12px}
+.qs{border:1px solid var(--line);border-radius:8px;padding:8px 12px;background:var(--sub)}
+.qs b{display:block;font-size:1.25rem;font-variant-numeric:tabular-nums;line-height:1.2}
+.qs span{font-size:11.5px;color:var(--mut);display:flex;align-items:center;gap:6px}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%}
+.bar{display:flex;height:8px;border-radius:99px;overflow:hidden;background:#e8edf6;margin-top:8px}
+.bar i{display:block;height:100%}
+.bar .p{background:#1f9d62}.bar .f{background:#d64533}.bar .na{background:#9aa8c2}
+.verdict{font-weight:650;font-size:13.5px}
+.qa-list{list-style:none;margin:12px 0 0;padding:0;display:flex;flex-direction:column;gap:8px}
+.qa-item{background:#fff;border:1px solid var(--line);border-left:4px solid #cdd6e5;border-radius:10px;padding:10px 14px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center}
+.qa-item[data-status=pass]{border-left-color:#1f9d62}
+.qa-item[data-status=fail]{border-left-color:#d64533;background:#fffafa}
+.qa-item[data-status=na]{border-left-color:#9aa8c2}
+.qa-item h3{display:flex;gap:8px;align-items:center;font-size:13.5px}
+.qa-item h3 .no{flex:none;width:20px;height:20px;border-radius:6px;background:#eef2f9;display:grid;place-items:center;font-size:11px;color:var(--ink2)}
+.qa-item p{margin:1px 0 0 28px;color:var(--mut);font-size:12.5px}
+.qa-item details{margin-left:28px}
+fieldset.seg{border:1px solid #d5dbe6;border-radius:8px;padding:2px;margin:0;display:flex;gap:2px;background:var(--sub)}
+.seg input{position:absolute;opacity:0;pointer-events:none}
+.seg label{font-size:12px;font-weight:600;color:var(--ink2);padding:4px 10px;border-radius:6px;cursor:pointer;white-space:nowrap}
+.seg input:checked+label.l-todo{background:#fff;box-shadow:0 0 0 1px #cdd6e5;color:var(--navy)}
+.seg input:checked+label.l-pass{background:#1f9d62;color:#fff}
+.seg input:checked+label.l-fail{background:#d64533;color:#fff}
+.seg input:checked+label.l-na{background:#6b7a96;color:#fff}
+.seg input:focus-visible+label{outline:2px solid #6e9bf0}
+
+/* presentation */
+.pres{position:fixed;inset:0;z-index:100;background:var(--bg);display:flex;flex-direction:column;color:var(--ink)}
+.pres.dark{background:var(--navy);color:#fff}
+.pres-top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 32px}
+.pres-brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:14px}
+.pres-brand .logo-mark{width:28px;height:28px;border-radius:7px}
+.pres.dark .logo-mark{background:#fff;color:var(--navy)}
+.pres-title{font-size:12.5px;font-weight:600;color:var(--mut);text-transform:uppercase;letter-spacing:.08em}
+.pres.dark .pres-title{color:#9db4e0}
+.pres-stage{flex:1;min-height:0;overflow:auto;padding:0 32px}
+.slide{max-width:1240px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;justify-content:center;padding:8px 0 16px}
+.slide h1{font-size:clamp(1.5rem,3.2vw,2.3rem);letter-spacing:-.02em;line-height:1.15;color:var(--navy);margin-bottom:6px}
+.slide .lead{color:var(--mut);font-size:clamp(.95rem,1.4vw,1.1rem);margin-bottom:20px;max-width:70ch}
+.slide.title-slide h1{color:#fff;font-size:clamp(2rem,5.4vw,3.8rem);margin-bottom:10px}
+.slide.title-slide .lead{color:#b6c6e6;font-size:clamp(1rem,1.9vw,1.35rem)}
+.slide .by{margin-top:26px;color:#9db4e0;font-size:14px}
+.slide .sim-note{margin-top:8px;color:#7f97c5;font-size:12.5px}
+.pk{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:14px}
+.pk .kpi{grid-column:span 3}
+.pk .kpi.rate{grid-column:span 4}
+.pk .kpi{padding:18px 20px}
+.pk .kpi .v{font-size:clamp(1.5rem,2.8vw,2.3rem);margin-top:6px}
+.pk .kpi .k{font-size:12px}
+.pk .kpi .f{font-size:12.5px;white-space:normal}
+.pk .kpi .k{white-space:normal}
+.pres .chart-box{height:min(46vh,380px)}
+.pres .card-h h3{font-size:1rem}
+.pres .hl .nm{font-size:1.3rem}
+.pg2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.pg-ins{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:16px}
+.pres .insights{font-size:1rem;gap:10px}
+.pres .fn-node{padding:20px 10px}
+.pres .fn-ic{width:50px;height:50px}
+.pres .fn-t{font-size:1rem}
+.pres .fn-c{font-size:12px}
+.pres-case{padding:18px 20px}
+.pres-case h3{font-size:1.1rem;margin-bottom:10px}
+.pres-case dl{margin:0;display:flex;flex-direction:column;gap:10px;font-size:.95rem}
+.pres-case dt{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--mut)}
+.pres-case dd{margin:2px 0 0;color:var(--ink2)}
+.pres-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 32px 16px;flex-wrap:wrap}
+.pres-dots{display:flex;gap:6px;align-items:center}
+.pres-dots button{width:9px;height:9px;border-radius:50%;border:0;padding:0;background:#c4cedf;cursor:pointer}
+.pres-dots button[aria-current=true]{background:var(--blue);width:22px;border-radius:99px}
+.pres.dark .pres-dots button{background:#47608f}
+.pres.dark .pres-dots button[aria-current=true]{background:#fff}
+.pres-count{font-size:12.5px;color:var(--mut);font-variant-numeric:tabular-nums}
+.pres.dark .pres-count{color:#9db4e0}
+.pres-ctl{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.pres.dark .btn{background:transparent;color:#fff;border-color:#47608f}
+.pres.dark .btn:hover{background:#1b2f57}
+.pres.dark .btn-primary{background:#fff;color:var(--navy);border-color:#fff}
+.pres.dark .btn:disabled{opacity:.35}
+body.is-presenting{overflow:hidden}
+
+/* responsive */
+@media (max-width:1240px){.g-hl{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.g-hl .card:last-child{grid-column:1/-1}}
+@media (max-width:1100px){.g3{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.g3>:last-child:nth-child(odd){grid-column:1/-1}.g-utm{grid-template-columns:minmax(0,1fr)}.ex-grid,.ref-grid{grid-template-columns:minmax(0,1fr)}.pg-ins{grid-template-columns:repeat(2,minmax(0,1fr))}.kpis,.pk{grid-template-columns:repeat(12,minmax(0,1fr))}.kpis .kpi,.kpis .kpi.rate,.pk .kpi,.pk .kpi.rate{grid-column:span 4}.kpis .kpi:last-child,.pk .kpi:last-child{grid-column:1/-1}}
+@media (max-width:900px){.brand span{display:none}}
+@media (max-width:1100px){.shell.expanded .brand span{display:none}}
+@media (max-width:900px){
+  .fn{flex-direction:column}
+  .fn-item{display:block}
+  .fn-line{flex:0 0 18px;width:2px;height:18px;align-self:center}
+  .fn-line::after{right:auto;left:-4px;top:auto;bottom:-1px;border-left:5px solid transparent;border-right:5px solid transparent;border-top:7px solid #c4cedf;border-bottom:0}
+  .fn-node{flex-direction:row;justify-content:flex-start;text-align:left;gap:10px;padding:10px 12px}
+  .fn-node .fn-ic{margin:0;flex:none}
+  .fn-node .fn-txt{display:flex;flex-direction:column;align-items:flex-start;gap:1px}
+  .ev-grid,.d-grid,.case-cards,.g2{grid-template-columns:minmax(0,1fr)}
+  .pg2{grid-template-columns:minmax(0,1fr)}
+}
+@media (max-width:760px){
+  .shell,.shell.expanded{grid-template-columns:minmax(0,1fr)}
+  .rail{position:fixed;top:auto;bottom:0;left:0;right:0;height:58px;flex-direction:row;align-items:center;padding:4px 6px;border-right:0;border-top:1px solid var(--line)}
+  .rail-logo,.rail-foot,.rail-sep{display:none}
+  .rail-list{flex-direction:row;width:100%;gap:2px;justify-content:space-between}
+  .rail-list li{flex:1}
+  .rail-btn,.shell.expanded .rail-btn{flex-direction:column;justify-content:center;gap:2px;height:48px;padding:0 2px;border-radius:8px;font-size:10px}
+  .rail-btn .lbl,.shell.expanded .rail-btn .lbl{display:none}
+  .rail-btn .lbl-s{display:block;font-size:9.5px}
+  .rail-btn.active::before{left:30%;right:30%;top:-4px;bottom:auto;width:auto;height:3px;border-radius:0 0 3px 3px}
+  .rail-btn[data-label]::after{display:none}
+  .brand span{display:none}
+  .topbar{padding:0 14px}
+  .content{padding:14px 14px 80px}
+  .kpis,.pk{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .kpis .kpi,.kpis .kpi.rate,.pk .kpi,.pk .kpi.rate{grid-column:auto}
+  .kpis .kpi:last-child,.pk .kpi:last-child{grid-column:1/-1}
+  .g-hl,.g3{grid-template-columns:minmax(0,1fr)}
+  .form-grid,.qa-stats{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+  .qa-top,.qa-item{grid-template-columns:minmax(0,1fr)}
+  .search .inp{width:100%}
+  .search{flex:1 1 100%}
+  .pill .long{display:none}
+  .pill .short{display:inline}
+  .about-line{margin-bottom:8px}
+  .pres-top,.pres-foot{padding-left:16px;padding-right:16px}
+  .pres-stage{padding:0 16px}
+  .pk,.pg-ins{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+  .pres-title{display:none}
+  .pres-ctl{width:100%;justify-content:space-between;gap:6px}
+  #pres-fs{display:none}
+  .pres-foot{gap:8px}
+}
+@media (max-width:560px){#top-present{display:none}.top-right{gap:6px}}
+@media (max-width:480px){.pk .kpi{padding:12px}.pk .kpi .k{font-size:10.5px}}
+@media (max-width:480px){.form-grid{grid-template-columns:minmax(0,1fr)}.parse-row{flex-direction:column}.parse-row .inp{flex:none;width:100%;height:34px}.kpi{padding:10px 11px}.kpi .k{white-space:normal;align-items:flex-start;line-height:1.25;min-height:2.5em}.pg-ins{grid-template-columns:minmax(0,1fr)}}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<div class="shell" id="shell">
+  <nav class="rail" aria-label="Primary">
+    <div class="rail-logo">
+      <span class="logo-mark" role="img" aria-label="Campaign Intelligence logo"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V9M10 19V5M16 19v-7M22 19H2"/></svg></span>
+    </div>
+    <ul class="rail-list">
+      <li><button type="button" class="rail-btn" data-target="overview" data-label="Overview" aria-label="Overview"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg><span class="lbl">Overview</span><span class="lbl-s">Overview</span></button></li>
+      <li><button type="button" class="rail-btn" data-target="campaigns" data-label="Campaign Performance" aria-label="Campaign Performance"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg><span class="lbl">Campaign Performance</span><span class="lbl-s">Campaigns</span></button></li>
+      <li><button type="button" class="rail-btn" data-target="utm" data-label="UTM Manager" aria-label="UTM Manager"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg><span class="lbl">UTM Manager</span><span class="lbl-s">UTM</span></button></li>
+      <li><button type="button" class="rail-btn" data-target="events" data-label="Event Tracking" aria-label="Event Tracking"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg><span class="lbl">Event Tracking</span><span class="lbl-s">Events</span></button></li>
+      <li><button type="button" class="rail-btn" data-target="troubleshoot" data-label="Troubleshooting" aria-label="Troubleshooting"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg><span class="lbl">Troubleshooting</span><span class="lbl-s">Debug</span></button></li>
+      <li><button type="button" class="rail-btn" data-target="qa" data-label="Tracking QA" aria-label="Tracking QA"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><span class="lbl">Tracking QA</span><span class="lbl-s">QA</span></button></li>
+      <li><button type="button" class="rail-btn" data-target="present" data-label="Presentation Mode" aria-label="Presentation Mode"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg><span class="lbl">Presentation Mode</span><span class="lbl-s">Present</span></button></li>
+    </ul>
+    <div class="rail-foot">
+      <div class="rail-sep"></div>
+      <button type="button" class="rail-btn" data-target="help" data-label="Help &amp; About" aria-label="Help and About"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg><span class="lbl">Help &amp; About</span></button>
+      <button type="button" class="rail-btn rail-toggle" id="rail-toggle" data-label="Expand labels" aria-label="Expand navigation labels" aria-expanded="false"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg><span class="lbl">Collapse</span></button>
+    </div>
+  </nav>
+
+  <div class="main-col">
+    <header class="topbar">
+      <div class="brand"><strong>Campaign Intelligence</strong><span>Marketing Analytics &amp; Campaign Management Platform</span></div>
+      <div class="top-right">
+        <span class="pill tip right" tabindex="0" data-tip="All campaign figures are fictional, simulated sample data. This dashboard is not connected to any actual Showbay advertising, GA4 or CRM account."><span class="long">Simulated sample data</span><span class="short">Simulated</span></span>
+        <button type="button" class="btn btn-icon" id="top-help" aria-label="Help and About" title="Help &amp; About"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button>
+        <button type="button" class="btn btn-dark" id="top-present"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><polygon points="6 4 20 12 6 20 6 4"/></svg>Present</button>
+      </div>
+    </header>
+
+    <main class="content" id="main">
+
+      <!-- OVERVIEW -->
+      <section class="view" id="view-overview" hidden aria-label="Overview">
+        <div class="page-head">
+          <div><h2>Overview</h2><p class="page-sub">5 campaigns &middot; 3 channels &middot; amounts in INR</p></div>
+          <div class="ctl-row">
+            <span class="static-chip">Period: sample (undated)<span class="info right" tabindex="0" data-tip="The sample dataset has no dates, so no date-range filter or time trend is shown and none is invented."><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></span></span>
+            <label class="sr" for="ov-sm">Channel</label>
+            <select class="sel f-sm" id="ov-sm"></select>
+            <button type="button" class="btn f-reset">Reset</button>
+          </div>
+        </div>
+
+        <div class="kpis" id="ov-kpis"></div>
+
+        <div class="g-hl" style="margin-top:12px">
+          <div class="card hl" id="ov-best"></div>
+          <div class="card hl" id="ov-low"></div>
+          <div class="card"><div class="card-h"><h3>Performance insights</h3></div><div class="card-b"><ul class="insights" id="ov-insights"></ul></div></div>
+        </div>
+
+        <div class="g3" style="margin-top:12px">
+          <div class="card"><div class="card-h"><h3>Performance by campaign <span class="info" tabindex="0" data-tip="Campaigns are compared side by side. The sample data has no time dimension, so no trend over time is shown."><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></span></h3></div><div class="card-b"><div class="chart-box"><canvas id="ov-perf" role="img" aria-label="Sessions and session-to-form rate by campaign"></canvas></div></div></div>
+          <div class="card"><div class="card-h"><h3>Spend by channel</h3></div><div class="card-b"><div class="chart-box"><canvas id="ov-channel" role="img" aria-label="Doughnut chart of spend by channel"></canvas></div></div></div>
+          <div class="card"><div class="card-h"><h3>Forms vs SALs</h3></div><div class="card-b"><div class="chart-box"><canvas id="ov-funnel" role="img" aria-label="Forms and sales accepted leads by campaign"></canvas></div></div></div>
+        </div>
+
+        <div class="card" style="margin-top:12px">
+          <div class="card-h"><h3>Campaign performance <span class="tag-sim">Simulated</span></h3></div>
+          <div class="card-b" style="padding-left:0;padding-right:0;padding-bottom:0">
+            <div class="table-wrap" style="border-top:1px solid var(--line2)">
+              <table><thead><tr><th>Campaign</th><th>Channel</th><th class="num">Spend</th><th class="num">Sessions</th><th class="num">Forms</th><th class="num">SALs</th><th class="num">Session&rarr;form</th><th class="num">Cost / form</th><th class="num">Cost / SAL</th></tr></thead>
+              <tbody id="ov-body"></tbody><tfoot id="ov-foot"></tfoot></table>
+            </div>
+            <div class="tbl-foot"><span id="ov-count"></span><span id="recon"></span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CAMPAIGNS -->
+      <section class="view" id="view-campaigns" hidden aria-label="Campaign Performance">
+        <div class="page-head">
+          <div><h2>Campaign Performance</h2><p class="page-sub" id="cp-count" role="status"></p></div>
+          <div class="ctl-row">
+            <span class="search"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><label class="sr" for="p-q">Search campaigns</label><input type="search" class="inp f-q" id="p-q" placeholder="Search campaigns or sources"></span>
+            <label class="sr" for="cp-sm">Source / medium</label>
+            <select class="sel f-sm" id="cp-sm"></select>
+            <label class="sr" for="p-sort">Sort by</label>
+            <select class="sel f-sort" id="p-sort">
+              <option value="default">Sort: original order</option>
+              <option value="spend">Spend (high to low)</option>
+              <option value="cr">Session&rarr;form rate (high to low)</option>
+              <option value="cpf">Cost per form (low to high)</option>
+              <option value="cps">Cost per SAL (low to high)</option>
+            </select>
+            <button type="button" class="btn f-reset">Reset</button>
+          </div>
+        </div>
+
+        <div class="kpis" id="cp-kpis"></div>
+
+        <div class="card" style="margin-top:12px">
+          <div class="card-h"><h3>Campaigns <span class="tag-sim">Simulated</span></h3></div>
+          <div class="card-b" style="padding-left:0;padding-right:0;padding-bottom:0">
+            <div class="table-wrap" style="border-top:1px solid var(--line2)">
+              <table><thead><tr><th>Campaign</th><th>Source / medium</th><th class="num">Spend</th><th class="num">Sessions</th><th class="num">Forms</th><th class="num">SALs</th><th class="num">Session&rarr;form</th><th class="num">Cost / form</th><th class="num">Cost / SAL</th><th class="num">Form&rarr;SAL <span class="info right" tabindex="0" data-tip="Additional metric: SALs ÷ Forms × 100."><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></span></th></tr></thead>
+              <tbody id="cp-body"></tbody><tfoot id="cp-foot"></tfoot></table>
+            </div>
+            <div class="tbl-foot"><span>Totals are calculated from summed inputs, not by averaging row rates.</span></div>
+          </div>
+        </div>
+
+        <div class="g2" style="margin-top:12px">
+          <div class="card"><div class="card-h"><h3>Spend by campaign</h3></div><div class="card-b"><div class="chart-box"><canvas id="cp-spend" role="img" aria-label="Bar chart of spend by campaign"></canvas></div></div></div>
+          <div class="card"><div class="card-h"><h3>Forms vs SALs</h3></div><div class="card-b"><div class="chart-box"><canvas id="cp-funnel" role="img" aria-label="Forms and SALs by campaign"></canvas></div></div></div>
+          <div class="card"><div class="card-h"><h3>Session-to-form rate (%)</h3></div><div class="card-b"><div class="chart-box"><canvas id="cp-cr" role="img" aria-label="Session to form conversion rate by campaign"></canvas></div></div></div>
+          <div class="card"><div class="card-h"><h3>Cost per form vs cost per SAL</h3></div><div class="card-b"><div class="chart-box"><canvas id="cp-cost" role="img" aria-label="Cost per form and cost per SAL by campaign"></canvas></div></div></div>
+        </div>
+
+        <div class="g2" style="margin-top:12px">
+          <div class="card">
+            <div class="card-h"><h3>Channel-wise performance</h3></div>
+            <div class="card-b" style="padding-left:0;padding-right:0;padding-bottom:0">
+              <div class="table-wrap" style="border-top:1px solid var(--line2)">
+                <table><thead><tr><th>Channel</th><th class="num">Spend</th><th class="num">Sessions</th><th class="num">Forms</th><th class="num">SALs</th><th class="num">Session&rarr;form</th><th class="num">Cost / form</th><th class="num">Cost / SAL</th></tr></thead><tbody id="cp-roll"></tbody></table>
+              </div>
+            </div>
+          </div>
+          <div class="card"><div class="card-h"><h3>Insights</h3></div><div class="card-b"><ul class="insights" id="cp-insights"></ul><p class="small muted" style="margin-top:10px">Directional only: small SAL counts mean one lead can swing a cost figure.</p></div></div>
+        </div>
+      </section>
+
+      <!-- UTM -->
+      <section class="view" id="view-utm" hidden aria-label="UTM Manager">
+        <div class="page-head"><div><h2>UTM Manager</h2><p class="page-sub">Build, validate and inspect tagged campaign links</p></div></div>
+        <div class="g-utm">
+          <div class="card"><div class="card-b">
+            <form id="utm-form" novalidate autocomplete="off">
+              <div class="form-grid">
+                <div class="field full"><label for="u-url">Destination URL</label><input type="text" class="inp full" id="u-url" name="url" inputmode="url" placeholder="e.g. https://example.com/landing/exhibition-q4"></div>
+                <div class="field"><label for="u-source">Campaign source</label><input type="text" class="inp full" id="u-source" name="source" placeholder="e.g. linkedin"></div>
+                <div class="field"><label for="u-medium">Campaign medium</label><input type="text" class="inp full" id="u-medium" name="medium" placeholder="e.g. paid-social"></div>
+                <div class="field full"><label for="u-campaign">Campaign name</label><input type="text" class="inp full" id="u-campaign" name="campaign" placeholder="e.g. exhibition-q4"></div>
+                <div class="field"><label for="u-term">Campaign term <span class="opt">(optional)</span></label><input type="text" class="inp full" id="u-term" name="term" placeholder="e.g. spring-sale"></div>
+                <div class="field"><label for="u-content">Campaign content <span class="opt">(optional)</span></label><input type="text" class="inp full" id="u-content" name="content" placeholder="e.g. carousel-v1"></div>
+              </div>
+              <div class="actions">
+                <button type="submit" class="btn btn-primary">Generate URL</button>
+                <button type="button" class="btn" id="u-fix">Apply fixes</button>
+                <button type="button" class="btn" id="u-faulty">Faulty example</button>
+                <button type="button" class="btn btn-ghost" id="u-clear">Clear</button>
+              </div>
+            </form>
+          </div></div>
+
+          <div class="card"><div class="card-b" aria-live="polite">
+            <div class="page-head" style="margin:0"><h3>Validation &amp; result</h3><div id="u-status" class="status warn">Waiting for input</div></div>
+            <div id="u-issues"></div>
+            <div class="lbl" style="margin-bottom:5px">Generated URL</div>
+            <div id="u-out" class="url-box empty" tabindex="0">Complete the required fields to generate a URL.</div>
+            <div class="copy-row">
+              <button type="button" class="btn btn-primary" id="u-copy" disabled><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy URL</button>
+              <span id="u-copied" class="copy-msg" role="status"></span>
+            </div>
+            <div class="parse-row">
+              <label class="sr" for="u-paste">Tagged URL to parse</label>
+              <input type="text" class="inp" id="u-paste" placeholder="Paste any tagged URL to inspect it">
+              <button type="button" class="btn" id="u-parse">Parse URL</button>
+            </div>
+            <p id="u-parse-msg" class="small muted" role="status" style="margin-top:6px"></p>
+          </div></div>
+        </div>
+
+        <div class="card" style="margin-top:12px">
+          <div class="card-h"><h3>Parsed parameters <span class="muted small" id="u-parsed-src" style="font-weight:500"></span></h3></div>
+          <div class="card-b" style="padding-left:0;padding-right:0;padding-bottom:0">
+            <div class="table-wrap" style="border-top:1px solid var(--line2)">
+              <table><thead><tr><th>Parameter</th><th>Decoded value</th><th>Encoded in URL</th><th class="wrap">Meaning</th></tr></thead><tbody id="u-parsed"></tbody></table>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:12px">
+          <div class="card-h"><h3>Naming conventions</h3><span class="muted small">lowercase &middot; hyphens &middot; fixed vocabulary &middot; <code>initiative-offer-period</code></span></div>
+          <div class="card-b"><div class="ex-grid" id="u-examples"></div></div>
+        </div>
+
+        <details class="fold"><summary>Parameter reference</summary>
+          <div class="fold-b"><div class="ref-grid">
+            <div><b>Source <code>utm_source</code></b>Who or where sent the visit: the platform, publisher or list. Examples: <code>linkedin</code>, <code>google</code>, <code>newsletter</code>.</div>
+            <div><b>Medium <code>utm_medium</code></b>How it was delivered: the channel type. Examples: <code>paid-social</code>, <code>cpc</code>, <code>email</code>. Mediums drive channel grouping, so keep a fixed list.</div>
+            <div><b>Campaign <code>utm_campaign</code></b>Which initiative the visit belongs to, so spend, sessions and leads compare by campaign. Term (paid keyword) and content (ad or link variant) are optional detail.</div>
+          </div>
+          <div class="table-wrap" style="margin-top:12px;border:1px solid var(--line);border-radius:8px">
+            <table><thead><tr><th>Avoid</th><th>Use instead</th><th class="wrap">Why</th></tr></thead><tbody>
+              <tr><td class="bad-t"><code>utm_Source=LinkedIn</code></td><td class="ok-t"><code>utm_source=linkedin</code></td><td class="wrap">Names and values are case-sensitive in reports.</td></tr>
+              <tr><td class="bad-t"><code>utm_medium=Paid Social</code></td><td class="ok-t"><code>utm_medium=paid-social</code></td><td class="wrap">Spaces become <code>%20</code>; mixed spellings split rows.</td></tr>
+              <tr><td class="bad-t"><code>utm_medium=ppc</code> / <code>paid-search</code></td><td class="ok-t"><code>utm_medium=cpc</code></td><td class="wrap">One word per channel keeps reporting grouped.</td></tr>
+              <tr><td class="bad-t"><code>Conf_Registration Q4</code></td><td class="ok-t"><code>conf-registration-q4</code></td><td class="wrap">Consistent separators, no spaces.</td></tr>
+            </tbody></table></div></div>
+        </details>
+      </section>
+
+      <!-- EVENTS -->
+      <section class="view" id="view-events" hidden aria-label="Event Tracking">
+        <div class="page-head">
+          <div><h2>Event Tracking</h2><p class="page-sub">Demo-request journey from landing page to sales-accepted lead</p></div>
+          <span class="pill tip right" tabindex="0" data-tip="Reference design. Payloads are illustrative and nothing is sent anywhere.">Reference design: no live tracking</span>
+        </div>
+        <div class="card"><div class="card-b"><div class="fn" id="fn"></div></div></div>
+        <div class="ev-grid">
+          <div class="card"><div class="card-b kv" id="ev-main"></div></div>
+          <div class="card"><div class="card-b" id="ev-side"></div></div>
+        </div>
+
+        <details class="fold"><summary>Campaign attribution flow: landing page to CRM</summary>
+          <div class="fold-b">
+            <ol class="flow">
+              <li><strong>Tag the link.</strong> Every ad and email link carries <code>utm_source</code>, <code>utm_medium</code> and <code>utm_campaign</code> (plus click IDs such as <code>gclid</code> where auto-tagging adds them).</li>
+              <li><strong>Capture on landing.</strong> On page load, read the parameters from the URL and keep them. GA4 reads them for reporting, but the form and CRM need their own copy.</li>
+              <li><strong>Persist across pages.</strong> Store the values in a first-party cookie or <code>localStorage</code> so they survive navigation from landing page to demo page. <code>sessionStorage</code> is lost when the tab closes and is not shared between tabs.</li>
+              <li><strong>Populate hidden form fields.</strong> Before submission, write the stored values into hidden inputs (<code>utm_source</code>, <code>utm_medium</code>, <code>utm_campaign</code>, <code>landing_page</code>, <code>form_id</code>).</li>
+              <li><strong>Send with the success event.</strong> Include the same values and a unique submission ID in <code>demo_request_success</code> so analytics and CRM can be reconciled.</li>
+              <li><strong>Map into the CRM.</strong> The form integration must map each hidden field to a CRM property. Keep first-touch and last-touch in separate properties so a later visit does not overwrite the original source.</li>
+              <li><strong>Report.</strong> Compare form events with CRM leads using the submission ID and campaign fields. Respect consent and privacy rules throughout.</li>
+            </ol>
+          </div>
+        </details>
+        <details class="fold"><summary>Illustrative code: capture and persist campaign parameters</summary>
+          <div class="fold-b">
+<pre><code>const KEYS = ['utm_source','utm_medium','utm_campaign','utm_term','utm_content','gclid'];
+const params = new URLSearchParams(location.search);
+const found = {};
+KEYS.forEach(k =&gt; { const v = params.get(k); if (v) found[k] = v; });
+
+if (Object.keys(found).length) {            // only overwrite when new UTMs arrive
+  found.landing_page = location.pathname;
+  found.captured_at  = new Date().toISOString();
+  localStorage.setItem('campaign_touch', JSON.stringify(found));
+}
+
+// before the form is submitted: copy the stored touch into hidden inputs
+const touch = JSON.parse(localStorage.getItem('campaign_touch') || '{}');
+Object.entries(touch).forEach(([name, value]) =&gt; {
+  const input = document.querySelector('input[name="' + name + '"]');
+  if (input) input.value = value;
+});</code></pre>
+            <p class="small muted" style="margin-top:8px">Illustrative only; it is not deployed or running anywhere.</p>
+          </div>
+        </details>
+        <details class="fold"><summary>Website event vs analytics conversion vs CRM lead vs SAL</summary>
+          <div class="fold-b" style="padding:0 0 4px">
+            <div class="table-wrap">
+              <table><thead><tr><th>Concept</th><th class="wrap">What it is</th><th class="wrap">Where it lives</th><th class="wrap">Example</th><th class="wrap">Caveat</th></tr></thead><tbody>
+                <tr><td><span class="layer l-web">Website event</span></td><td class="wrap">A browser-side interaction recorded by a tag. It says what happened on the page, not whether it had business value.</td><td class="wrap">GA4, GTM data layer, PostHog</td><td class="wrap"><code>page_view</code>, <code>cta_click</code>, <code>form_start</code></td><td class="wrap">Can fire without any outcome; can be blocked by consent settings or ad blockers.</td></tr>
+                <tr><td><span class="layer l-conv">Analytics conversion</span></td><td class="wrap">A website event designated as a business goal (a key event in GA4) that can be reported and sent to ad platforms.</td><td class="wrap">GA4 key event, ad-platform conversions</td><td class="wrap"><code>demo_request_success</code></td><td class="wrap">Only as accurate as its trigger. It counts submissions, not lead quality.</td></tr>
+                <tr><td><span class="layer l-crm">CRM lead</span></td><td class="wrap">A contact record created in the CRM from the submission, holding contact details and campaign fields.</td><td class="wrap">CRM</td><td class="wrap">New lead with <code>utm_campaign=exhibition-q4</code></td><td class="wrap">May include spam or duplicates; can exist even if the analytics event was blocked.</td></tr>
+                <tr><td><span class="layer l-sales">SAL / SQL</span></td><td class="wrap"><strong>SAL:</strong> sales reviewed the lead and accepted it for follow-up. <strong>SQL:</strong> sales qualified it against criteria (need, budget, authority, timing).</td><td class="wrap">CRM lifecycle or lead status</td><td class="wrap">Lead status set to "Accepted"</td><td class="wrap">Definitions vary by company. This product reports SALs.</td></tr>
+              </tbody></table>
+            </div>
+            <p class="small muted" style="padding:8px 14px 0">Counts should narrow down the funnel: sessions &ge; successful form events &ge; CRM leads &ge; SALs. If CRM leads exceed form events, or form events exceed submissions, suspect tracking first.</p>
+          </div>
+        </details>
+      </section>
+
+      <!-- TROUBLESHOOT -->
+      <section class="view" id="view-troubleshoot" hidden aria-label="Troubleshooting">
+        <div class="page-head"><div><h2>Troubleshooting</h2><p class="page-sub">Diagnose common tracking faults</p></div></div>
+        <div class="case-cards" id="case-cards"></div>
+        <div id="case-body"></div>
+        <details class="fold"><summary>Suggested QA sequence for any tracking fault</summary>
+          <div class="fold-b">
+            <ol class="flow">
+              <li><strong>Reproduce</strong> with a clean browser session and a uniquely named test campaign, for example <code>utm_campaign=qa-test-001</code>.</li>
+              <li><strong>Check the URL</strong> after every redirect: are the UTMs still there, lowercase and correctly named?</li>
+              <li><strong>Check the tag layer</strong> in GTM Preview and GA4 DebugView: which events fire, how many times, with which parameters?</li>
+              <li><strong>Check persistence</strong> by navigating to another page and re-inspecting stored values and hidden fields.</li>
+              <li><strong>Check the network payload</strong> of the form submission for the campaign fields.</li>
+              <li><strong>Check the CRM record</strong> created by the test and compare it with what was sent.</li>
+              <li><strong>Fix one thing, retest end to end</strong>, then record the result in Tracking QA.</li>
+            </ol>
+            <div class="actions"><button type="button" class="btn" id="t-to-qa">Open Tracking QA</button></div>
+          </div>
+        </details>
+      </section>
+
+      <!-- QA -->
+      <section class="view" id="view-qa" hidden aria-label="Tracking QA">
+        <div class="page-head">
+          <div><h2>Tracking QA</h2><p class="page-sub">Quality-control framework for a tagged campaign journey &middot; statuses saved in this browser</p></div>
+          <div class="ctl-row">
+            <button type="button" class="btn" id="q-copy">Copy summary</button>
+            <button type="button" class="btn" id="q-reset">Reset</button>
+          </div>
+        </div>
+        <div class="card"><div class="card-b">
+          <div class="qa-top"><div><div class="verdict" id="q-verdict"></div><div class="bar" id="q-bar" role="img" aria-label="QA progress"></div></div><div class="copy-msg" id="q-copied" role="status"></div></div>
+          <div class="qa-stats" id="q-stats"></div>
+        </div></div>
+        <ol class="qa-list" id="q-list"></ol>
+      </section>
+      <!-- HELP -->
+      <section class="view" id="view-help" hidden aria-label="Help and About">
+        <div class="page-head"><div><h2>Help &amp; About</h2><p class="page-sub">Campaign Intelligence &middot; built by Mohammed Ishaq</p></div></div>
+        <div class="g2">
+          <div class="card"><div class="card-h"><h3>Usage guide</h3></div><div class="card-b">
+            <dl class="guide">
+              <dt>Overview</dt><dd>KPIs, highlights, charts and the campaign table. Use the channel filter to focus on one channel.</dd>
+              <dt>Campaign Performance</dt><dd>Search campaigns, filter by source / medium and sort. Cards, tables, charts and insights follow the filters.</dd>
+              <dt>UTM Manager</dt><dd>Enter a URL, source, medium and campaign, then copy the result. Paste any tagged URL and use Parse URL to inspect it.</dd>
+              <dt>Event Tracking</dt><dd>Click a stage to see its trigger, what it measures, parameters and common mistakes.</dd>
+              <dt>Troubleshooting</dt><dd>Pick a scenario for cause, impact, fix and verification. Case A includes a URL diagnostic.</dd>
+              <dt>Tracking QA</dt><dd>Set each check to Pass, Fail or N/A. Statuses are saved in this browser.</dd>
+              <dt>Presentation Mode</dt><dd>Full-screen slides built from the dashboard. Use &larr; &rarr; to move, Home / End to jump, Esc to exit.</dd>
+            </dl>
+          </div></div>
+          <div class="card"><div class="card-h"><h3>Assumptions &amp; limitations</h3></div><div class="card-b">
+            <ul class="insights">
+              <li><strong>All campaign figures are fictional, simulated data.</strong> This dashboard is <strong>not connected to any actual Showbay advertising, Google Analytics 4 (GA4) or CRM account</strong>, and no real clicks, leads or events are tracked.</li>
+              <li>Amounts are in INR. The sample has no dates, so there are no date filters or time trends.</li>
+              <li>"Forms" means de-duplicated successful submissions; a SAL is a lead accepted by sales.</li>
+              <li>The UTM Manager, filters, calculations and QA checklist are working tools. Event Tracking and Troubleshooting are reference designs, and the payloads are illustrative.</li>
+              <li>Each campaign has few forms and SALs, so comparisons are directional, not statistically conclusive.</li>
+              <li><code>example.com</code> is a placeholder domain. GA4 behaviour described is general and should be confirmed in a live property.</li>
+              <li>Everything runs in your browser. The only external dependency is Chart.js from a CDN, so charts need an internet connection.</li>
+            </ul>
+          </div></div>
+        </div>
+        <div class="card" style="margin-top:12px">
+          <div class="card-h"><h3>Metric definitions</h3></div>
+          <div class="card-b" style="padding-left:0;padding-right:0;padding-bottom:0">
+            <div class="table-wrap" style="border-top:1px solid var(--line2)">
+              <table><thead><tr><th>Metric</th><th>Formula</th><th class="wrap">Notes</th></tr></thead><tbody>
+                <tr><td><strong>Spend</strong></td><td>Sum of campaign spend</td><td class="wrap">Media cost in INR.</td></tr>
+                <tr><td><strong>Sessions</strong></td><td>Sum of sessions</td><td class="wrap">Visits attributed to the campaign.</td></tr>
+                <tr><td><strong>Form submissions</strong></td><td>Sum of forms</td><td class="wrap">Successful demo-request submissions.</td></tr>
+                <tr><td><strong>SAL</strong></td><td>Sum of SALs</td><td class="wrap">Sales accepted leads.</td></tr>
+                <tr><td><strong>Session-to-form rate</strong></td><td>Forms &divide; Sessions &times; 100</td><td class="wrap">Overall rate uses total forms and total sessions.</td></tr>
+                <tr><td><strong>Cost per form</strong></td><td>Spend &divide; Forms</td><td class="wrap">Overall cost uses total spend and total forms.</td></tr>
+                <tr><td><strong>Cost per SAL</strong></td><td>Spend &divide; SALs</td><td class="wrap">Overall cost uses total spend and total SALs.</td></tr>
+                <tr><td><strong>Form-to-SAL rate</strong></td><td>SALs &divide; Forms &times; 100</td><td class="wrap">Additional metric on lead quality.</td></tr>
+              </tbody></table>
+            </div>
+            <div class="tbl-foot"><span>Aggregates always divide summed totals; they never average campaign-level rates or costs. A metric shows &mdash; when its divisor is zero.</span></div>
+          </div>
+        </div>
+      </section>
+
+      <div class="about-line"><span>Campaign Intelligence &middot; built by Mohammed Ishaq</span><span>All campaign data shown is simulated sample data</span></div>
+    </main>
+  </div>
+</div>
+
+<!-- PRESENTATION MODE -->
+<div class="pres" id="pres" role="dialog" aria-modal="true" aria-label="Presentation mode" hidden>
+  <div class="pres-top">
+    <div class="pres-brand"><span class="logo-mark" aria-hidden="true"><svg class="ic" viewBox="0 0 24 24"><path d="M4 19V9M10 19V5M16 19v-7M22 19H2"/></svg></span>Campaign Intelligence</div>
+    <div class="pres-title" id="pres-title"></div>
+  </div>
+  <div class="pres-stage" id="pres-stage">
+    <section class="slide title-slide" data-title="Introduction">
+      <h1>Campaign Intelligence</h1>
+      <p class="lead">Marketing Analytics &amp; Campaign Management Platform</p>
+      <p class="by">Presented by Mohammed Ishaq</p>
+      <p class="sim-note">Campaign data shown is simulated sample data. Not connected to any actual Showbay advertising, GA4 or CRM account.</p>
+    </section>
+    <section class="slide" data-title="Performance at a glance">
+      <h1>Performance at a glance</h1>
+      <p class="lead">Five campaigns across three channels. Totals are calculated from summed inputs.</p>
+      <div class="pk" id="pr-kpis"></div>
+    </section>
+    <section class="slide" data-title="Campaign comparison">
+      <h1>Campaign comparison</h1>
+      <p class="lead">Form volume, SAL volume and the cost of each outcome by campaign.</p>
+      <div class="pg2">
+        <div class="card"><div class="card-h"><h3>Forms vs SALs</h3></div><div class="card-b"><div class="chart-box"><canvas id="pr-funnel" role="img" aria-label="Forms and SALs by campaign"></canvas></div></div></div>
+        <div class="card"><div class="card-h"><h3>Cost per form vs cost per SAL</h3></div><div class="card-b"><div class="chart-box"><canvas id="pr-cost" role="img" aria-label="Cost per form and cost per SAL by campaign"></canvas></div></div></div>
+      </div>
+    </section>
+    <section class="slide" data-title="Channel mix">
+      <h1>Channel mix and conversion</h1>
+      <p class="lead">Where the budget goes, and how well each campaign turns sessions into forms.</p>
+      <div class="pg2">
+        <div class="card"><div class="card-h"><h3>Spend by channel</h3></div><div class="card-b"><div class="chart-box"><canvas id="pr-channel" role="img" aria-label="Spend by channel"></canvas></div></div></div>
+        <div class="card"><div class="card-h"><h3>Session-to-form rate (%)</h3></div><div class="card-b"><div class="chart-box"><canvas id="pr-cr" role="img" aria-label="Session to form rate by campaign"></canvas></div></div></div>
+      </div>
+    </section>
+    <section class="slide" data-title="Key insights">
+      <h1>Key insights</h1>
+      <p class="lead">Calculated automatically from the dataset.</p>
+      <div class="pg-ins" id="pr-hl"></div>
+      <div class="card"><div class="card-b"><ul class="insights" id="pr-insights"></ul></div></div>
+    </section>
+    <section class="slide" data-title="Tracking journey">
+      <h1>From campaign click to sales-accepted lead</h1>
+      <p class="lead">Each stage is measured by a defined event or CRM status, with campaign parameters carried through.</p>
+      <div class="card"><div class="card-b"><div class="fn" id="pr-fn"></div></div></div>
+    </section>
+    <section class="slide" data-title="Troubleshooting">
+      <h1>Troubleshooting summary</h1>
+      <p class="lead">Three common faults, with the fix and how to confirm it.</p>
+      <div class="g3" id="pr-cases"></div>
+    </section>
+  </div>
+  <div class="pres-foot">
+    <div class="pres-dots" id="pres-dots" role="group" aria-label="Slides"></div>
+    <div class="pres-ctl">
+      <span class="pres-count" id="pres-count" aria-live="polite"></span>
+      <button type="button" class="btn" id="pres-prev">&larr; Previous</button>
+      <button type="button" class="btn btn-primary" id="pres-next">Next &rarr;</button>
+      <button type="button" class="btn" id="pres-fs" hidden>Full screen</button>
+      <button type="button" class="btn" id="pres-exit">Exit presentation</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  /* ---------- helpers ---------- */
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  var esc = function (s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  };
+  function legacyCopy(text) {
+    return new Promise(function (resolve, reject) {
+      var ta = document.createElement('textarea');
+      ta.value = text; ta.setAttribute('readonly', '');
+      ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select();
+      var ok = false;
+      try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+      document.body.removeChild(ta);
+      ok ? resolve() : reject(new Error('copy failed'));
+    });
+  }
+  function copyText(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      return navigator.clipboard.writeText(text).catch(function () { return legacyCopy(text); });
+    }
+    return legacyCopy(text);
+  }
+  function flash(el, msg, ms) {
+    el.textContent = msg;
+    clearTimeout(el._t);
+    el._t = setTimeout(function () { el.textContent = ''; }, ms || 2500);
+  }
+  var I = {
+    info: '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>',
+    alert: '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>'
+  };
+  function svg(p) { return '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">' + p + '</svg>'; }
+  function infoTip(tip, right) { return '<span class="info' + (right ? ' right' : '') + '" tabindex="0" role="img" aria-label="' + esc(tip) + '" data-tip="' + esc(tip) + '">' + I.info + '</span>'; }
+
+  /* ---------- tooltips: one viewport-aware tooltip for every [data-tip] ---------- */
+  var tipEl = document.createElement('div');
+  tipEl.className = 'tipbox'; tipEl.id = 'tipbox'; tipEl.setAttribute('role', 'tooltip');
+  document.body.appendChild(tipEl);
+  function showTip(el) {
+    var text = el.getAttribute('data-tip');
+    if (!text) return;
+    tipEl.textContent = text;
+    tipEl.style.left = '0px'; tipEl.style.top = '0px';
+    var r = el.getBoundingClientRect(), b = tipEl.getBoundingClientRect(), m = 8;
+    var vw = document.documentElement.clientWidth, vh = window.innerHeight;
+    var left = Math.max(m, Math.min(r.left + r.width / 2 - b.width / 2, vw - b.width - m));
+    var top = r.top - b.height - 8;
+    if (top < m) top = r.bottom + 8;
+    top = Math.max(m, Math.min(top, vh - b.height - m));
+    tipEl.style.left = Math.round(left) + 'px'; tipEl.style.top = Math.round(top) + 'px';
+    el.setAttribute('aria-describedby', 'tipbox');
+    tipEl.classList.add('on');
+  }
+  function hideTip() { tipEl.classList.remove('on'); }
+  function tipTarget(e) { return e.target && e.target.closest ? e.target.closest('[data-tip]') : null; }
+  document.addEventListener('mouseover', function (e) { var t = tipTarget(e); if (t) showTip(t); });
+  document.addEventListener('mouseout', function (e) { var t = tipTarget(e); if (t && !t.contains(e.relatedTarget)) hideTip(); });
+  document.addEventListener('focusin', function (e) { var t = tipTarget(e); if (t) showTip(t); });
+  document.addEventListener('focusout', function (e) { if (tipTarget(e)) hideTip(); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') hideTip(); });
+  window.addEventListener('scroll', hideTip, true);
+  window.addEventListener('resize', hideTip);
+
+  /* ---------- navigation ---------- */
+  var VIEWS = ['overview', 'campaigns', 'utm', 'events', 'troubleshoot', 'qa', 'help'];
+  var lastView = 'overview';
+  var shell = $('#shell');
+
+  function setActive(id) {
+    $$('.rail-btn[data-target]').forEach(function (b) {
+      var on = b.getAttribute('data-target') === id;
+      b.classList.toggle('active', on);
+      if (on) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current');
+    });
+  }
+  function show(id) {
+    if (id === 'present') { setActive('present'); openPresent(); return; }
+    if (VIEWS.indexOf(id) < 0) id = 'overview';
+    closePresent();
+    lastView = id;
+    $$('.view').forEach(function (v) { v.hidden = v.id !== 'view-' + id; });
+    setActive(id);
+    window.scrollTo(0, 0);
+    drawAllVisible();
+  }
+  $$('.rail-btn[data-target]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var id = b.getAttribute('data-target');
+      if (location.hash === '#' + id) show(id); else location.hash = '#' + id;
+    });
+  });
+  window.addEventListener('hashchange', function () { show(location.hash.slice(1)); });
+  $('#top-present').addEventListener('click', function () { location.hash = '#present'; });
+  $('#top-help').addEventListener('click', function () { location.hash = '#help'; });
+
+  (function railState() {
+    var KEY = 'ci-rail', btn = $('#rail-toggle');
+    function apply(ex) {
+      shell.classList.toggle('expanded', ex);
+      btn.setAttribute('aria-expanded', ex ? 'true' : 'false');
+      var label = ex ? 'Collapse labels' : 'Expand labels';
+      btn.setAttribute('data-label', label);
+      btn.setAttribute('aria-label', ex ? 'Collapse navigation labels' : 'Expand navigation labels');
+    }
+    var ex = false;
+    try { ex = localStorage.getItem(KEY) === '1'; } catch (e) { ex = false; }
+    apply(ex);
+    btn.addEventListener('click', function () {
+      ex = !ex; apply(ex);
+      try { localStorage.setItem(KEY, ex ? '1' : '0'); } catch (e) { /* ignore */ }
+      setTimeout(drawAllVisible, 0);
+    });
+  })();
+
+  /* =====================================================
+     UTM MANAGER
+     ===================================================== */
+  var FIELDS = ['url', 'source', 'medium', 'campaign', 'term', 'content'];
+  var LABEL = { source: 'Campaign source', medium: 'Campaign medium', campaign: 'Campaign name', term: 'Campaign term', content: 'Campaign content' };
+  var KNOWN_MEDIUMS = ['cpc', 'paid-social', 'email', 'organic-social', 'display', 'referral', 'affiliate', 'video', 'sms'];
+  var PAIR = { linkedin: 'paid-social', google: 'cpc', newsletter: 'email' };
+  var SYN = {
+    source: { 'linked-in': 'linkedin', 'linkedin-ads': 'linkedin', 'linkedin.com': 'linkedin', 'google-ads': 'google', 'googleads': 'google', 'adwords': 'google', 'news-letter': 'newsletter' },
+    medium: { 'paidsocial': 'paid-social', 'social-paid': 'paid-social', 'paid-social-media': 'paid-social', 'ppc': 'cpc', 'paid-search': 'cpc', 'paidsearch': 'cpc', 'e-mail': 'email', 'newsletter': 'email', 'mail': 'email', 'emailer': 'email' }
+  };
+  var PARAM_HELP = {
+    utm_source: 'Where the visit came from (platform or publisher).',
+    utm_medium: 'The channel type (for example cpc, paid-social, email).',
+    utm_campaign: 'The specific campaign or initiative.',
+    utm_term: 'Optional: the paid keyword or audience term.',
+    utm_content: 'Optional: differentiates ads, creatives or links.'
+  };
+  var EXAMPLES = [
+    { title: 'LinkedIn paid social', url: 'https://example.com/landing/exhibition-q4', source: 'linkedin', medium: 'paid-social', campaign: 'exhibition-q4', term: '', content: 'carousel-v1' },
+    { title: 'Google paid search', url: 'https://example.com/landing/conf-registration', source: 'google', medium: 'cpc', campaign: 'conf-registration', term: 'event-registration-software', content: 'rsa-headline-a' },
+    { title: 'Email marketing', url: 'https://example.com/resources/ops-checklist', source: 'newsletter', medium: 'email', campaign: 'ops-checklist-nov', term: '', content: 'hero-button' }
+  ];
+
+  function simple(val) {
+    return String(val).trim().toLowerCase().replace(/[\s_]+/g, '-').replace(/[^a-z0-9.\-]/g, '').replace(/-{2,}/g, '-').replace(/^-+|-+$/g, '');
+  }
+  function normalise(kind, val) {
+    var s = simple(val), m = SYN[kind];
+    return (m && Object.prototype.hasOwnProperty.call(m, s) && m[s]) || s;
+  }
+  function readForm() { var v = {}; FIELDS.forEach(function (f) { v[f] = $('#u-' + f).value; }); return v; }
+  function writeForm(v) { FIELDS.forEach(function (f) { $('#u-' + f).value = v[f] || ''; }); }
+
+  function validate(v) {
+    var issues = [], blocking = false, urlObj = null;
+    function add(level, cat, msg) { issues.push({ level: level, cat: cat, msg: msg }); if (level === 'error') blocking = true; }
+
+    if (!v.url.trim()) add('error', 'Missing', 'Destination URL is required.');
+    ['source', 'medium', 'campaign'].forEach(function (k) {
+      if (!v[k].trim()) add('error', 'Missing', LABEL[k] + ' is required (<code>utm_' + k + '</code>).');
+    });
+
+    var rawUrl = v.url.trim();
+    if (rawUrl) {
+      try {
+        urlObj = new URL(rawUrl);
+        if (!/^https?:$/.test(urlObj.protocol)) throw new Error('protocol');
+        if (urlObj.hostname.indexOf('.') < 0 && urlObj.hostname !== 'localhost') throw new Error('host');
+        if (/[\s%]/.test(urlObj.hostname) || /\s/.test(rawUrl.replace(/^[a-z]+:\/\//i, '').split(/[\/?#]/)[0])) throw new Error('host');
+      } catch (e) {
+        urlObj = null;
+        add('error', 'Malformed URL', 'Not a valid web address. Start with <code>https://</code> and include a full domain, e.g. <code>https://example.com/page</code>.');
+      }
+    }
+    if (urlObj) {
+      if (/\s/.test(rawUrl)) add('warn', 'Spaces', 'The destination URL contains spaces; they will be encoded as <code>%20</code>. Prefer hyphens in page paths.');
+      var existing = [];
+      urlObj.searchParams.forEach(function (_, k) { if (k.toLowerCase().indexOf('utm_') === 0) existing.push(k); });
+      if (existing.length) add('note', 'Existing UTMs', 'The destination already has <code>' + esc(existing.join(', ')) + '</code>. These will be replaced by the values below.');
+    }
+
+    Object.keys(LABEL).forEach(function (k) {
+      var raw = v[k];
+      if (!raw.trim()) return;
+      var t = raw.trim(), label = LABEL[k], n = normalise(k, t);
+      if (t !== raw) add('warn', 'Spaces', label + ' has leading or trailing whitespace; it will be trimmed.');
+      if (/\s/.test(t)) add('warn', 'Spaces', label + ' contains spaces ("' + esc(t) + '"). They are encoded as <code>%20</code> and create look-alike values. Use <code>' + esc(simple(t)) + '</code>.');
+      if (t !== t.toLowerCase()) add('warn', 'Casing', label + ' has capital letters ("' + esc(t) + '"). Reports treat <code>LinkedIn</code> and <code>linkedin</code> as different values. Use <code>' + esc(t.toLowerCase()) + '</code>.');
+      if (/[^A-Za-z0-9\-_.\s]/.test(t)) add('warn', 'Naming', label + ' contains special characters that need encoding or may be mis-read. Stick to letters, numbers and hyphens.');
+      if (t.indexOf('_') >= 0 && t.indexOf('-') >= 0) add('warn', 'Naming', label + ' mixes underscores and hyphens. Pick hyphens only.');
+      else if (t.indexOf('_') >= 0) add('warn', 'Naming', label + ' uses underscores; the convention here is hyphens.');
+      if (SYN[k] && n !== simple(t)) add('warn', 'Naming', '"' + esc(t) + '" is a variant spelling; the standard ' + k + ' is <code>' + esc(n) + '</code>.');
+      if (k === 'medium' && KNOWN_MEDIUMS.indexOf(n) < 0) add('warn', 'Naming', '<code>' + esc(n) + '</code> is not in the standard medium list (' + KNOWN_MEDIUMS.join(', ') + '). Non-standard mediums can fall into the wrong channel group.');
+    });
+
+    if (v.source.trim() && v.medium.trim()) {
+      var src = normalise('source', v.source), med = normalise('medium', v.medium);
+      if (PAIR[src] && PAIR[src] !== med) add('note', 'Pairing', '<code>' + esc(src) + '</code> is usually tagged <code>' + PAIR[src] + '</code>. Keep <code>' + esc(med) + '</code> only if that is intentional.');
+    }
+    return { issues: issues, blocking: blocking, urlObj: urlObj };
+  }
+
+  function buildUrl(v, urlObj) {
+    var u = new URL(urlObj.href);
+    Array.from(u.searchParams.keys()).forEach(function (k) { if (k.toLowerCase().indexOf('utm_') === 0) u.searchParams.delete(k); });
+    u.searchParams.set('utm_source', v.source.trim());
+    u.searchParams.set('utm_medium', v.medium.trim());
+    u.searchParams.set('utm_campaign', v.campaign.trim());
+    if (v.term.trim()) u.searchParams.set('utm_term', v.term.trim());
+    if (v.content.trim()) u.searchParams.set('utm_content', v.content.trim());
+    u.search = u.searchParams.toString().replace(/\+/g, '%20');
+    return u.toString();
+  }
+
+  var currentUrl = '', pastedUrl = '';
+  function issueHtml(list) {
+    return '<ul class="issues">' + list.map(function (i) {
+      return '<li class="' + i.level + '"><span class="b">' + esc(i.cat) + '</span><span>' + i.msg + '</span></li>';
+    }).join('') + '</ul>';
+  }
+  function plural(n, w) { return n + ' ' + w + (n === 1 ? '' : 's'); }
+  function runUtm() {
+    var v = readForm(), res = validate(v);
+    var errors = res.issues.filter(function (i) { return i.level === 'error'; });
+    var recs = res.issues.filter(function (i) { return i.level !== 'error'; });
+    var status = $('#u-status'), out = $('#u-out'), copy = $('#u-copy');
+    var allEmpty = FIELDS.every(function (f) { return !v[f].trim(); });
+
+    var html = '';
+    if (!allEmpty) {
+      if (errors.length) html += '<div class="vgroup err"><h4>Errors<span class="cnt">' + errors.length + '</span><span class="vsub">fix these to generate the URL</span></h4>' + issueHtml(errors) + '</div>';
+      if (recs.length) html += '<div class="vgroup rec"><h4>Recommendations<span class="cnt">' + recs.length + '</span><span class="vsub">optional, the URL is still generated</span></h4>' + issueHtml(recs) + '</div>';
+      if (!errors.length && !recs.length) html = issueHtml([{ level: 'ok', cat: 'Passed', msg: 'Required values present, URL well-formed, casing and naming consistent, no spaces.' }]);
+    }
+    $('#u-issues').innerHTML = html;
+
+    if (allEmpty) { status.className = 'status warn'; status.textContent = 'Waiting for input'; }
+    else if (errors.length) { status.className = 'status err'; status.textContent = plural(errors.length, 'error') + ' to fix'; }
+    else if (recs.length) { status.className = 'status warn'; status.textContent = 'Ready · ' + plural(recs.length, 'recommendation'); }
+    else { status.className = 'status ok'; status.textContent = 'All checks passed'; }
+
+    if (!res.blocking && res.urlObj) {
+      currentUrl = buildUrl(v, res.urlObj);
+      out.className = 'url-box'; out.textContent = currentUrl; copy.disabled = false;
+    } else {
+      currentUrl = '';
+      out.className = 'url-box empty';
+      out.textContent = errors.length ? 'Fix the errors above to generate a URL.' : 'Complete the required fields to generate a URL.';
+      copy.disabled = true;
+    }
+    if (pastedUrl) renderParsed(pastedUrl, 'pasted URL', true);
+    else if (currentUrl) renderParsed(currentUrl, 'generated URL', false);
+    else { $('#u-parsed').innerHTML = '<tr><td colspan="4" class="muted wrap">Nothing to parse yet. Generate a URL, or paste one and use Parse URL.</td></tr>'; $('#u-parsed-src').textContent = ''; }
+    $('#u-fix').disabled = !fixesAvailable(v);
+  }
+
+  var STD = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content'];
+  var REQ = { utm_source: true, utm_medium: true, utm_campaign: true };
+  function helpFor(lk) { return Object.prototype.hasOwnProperty.call(PARAM_HELP, lk) ? PARAM_HELP[lk] : null; }
+  function renderParsed(url, src, pasted) {
+    var u;
+    try { u = new URL(url); } catch (e) { return; }
+    var raw = Object.create(null), seen = Object.create(null), rows = [];
+    u.search.slice(1).split('&').forEach(function (p) {
+      var i = p.indexOf('=');
+      if (i > 0) { try { raw[decodeURIComponent(p.slice(0, i).replace(/\+/g, ' '))] = p.slice(i + 1); } catch (e) { /* skip */ } }
+    });
+    u.searchParams.forEach(function (val, key) {
+      var lk = key.toLowerCase(), isUtm = lk.indexOf('utm_') === 0, help = helpFor(lk);
+      if (!help) help = isUtm ? 'Non-standard UTM parameter name.' : 'Existing non-UTM parameter kept from the destination.';
+      else if (key !== lk) help += ' The name has capitals; the standard is ' + lk + '.';
+      seen[lk] = true;
+      var idx = STD.indexOf(lk);
+      rows.push({ order: idx < 0 ? 99 : idx, html: '<tr><td><code>' + esc(key) + '</code></td><td class="wrap">' + esc(val) + '</td><td class="wrap"><code>' + esc(raw[key] || '') + '</code></td><td class="wrap">' + esc(help) + '</td></tr>' });
+    });
+    STD.forEach(function (k, idx) {
+      if (seen[k] || (REQ[k] && !pasted)) return;
+      rows.push({ order: idx, html: '<tr class="unset"><td><code>' + k + '</code></td><td class="muted">' + (REQ[k] ? 'Missing' : 'Not set') + '</td><td class="muted">—</td><td class="wrap muted">' + (REQ[k] ? 'Required parameter is missing from this URL.' : 'Optional. Left out of the URL because the field is empty.') + '</td></tr>' });
+    });
+    rows.sort(function (a, b) { return a.order - b.order; });
+    $('#u-parsed').innerHTML = rows.map(function (r) { return r.html; }).join('') || '<tr><td colspan="4" class="muted wrap">No query parameters found.</td></tr>';
+    $('#u-parsed-src').textContent = 'from ' + src;
+  }
+
+  function fixed(v) {
+    var o = { url: v.url.trim() };
+    ['source', 'medium', 'campaign', 'term', 'content'].forEach(function (k) { o[k] = v[k].trim() ? normalise(k, v[k]) : ''; });
+    return o;
+  }
+  function fixesAvailable(v) { var f = fixed(v); return FIELDS.some(function (k) { return f[k] !== v[k]; }); }
+
+  function parseIntoBuilder(str) {
+    var u;
+    try { u = new URL(str.trim()); if (!/^https?:$/.test(u.protocol)) throw new Error('p'); }
+    catch (e) { return { error: 'That is not a valid web address. Include https:// and a domain.' }; }
+    var v = { url: '', source: '', medium: '', campaign: '', term: '', content: '' }, keep = new URLSearchParams(), n = 0;
+    u.searchParams.forEach(function (val, key) {
+      var lk = key.toLowerCase();
+      if (lk === 'utm_source') { v.source = val; n++; }
+      else if (lk === 'utm_medium') { v.medium = val; n++; }
+      else if (lk === 'utm_campaign') { v.campaign = val; n++; }
+      else if (lk === 'utm_term') { v.term = val; n++; }
+      else if (lk === 'utm_content') { v.content = val; n++; }
+      else keep.append(key, val);
+    });
+    u.search = keep.toString().replace(/\+/g, '%20');
+    v.url = u.toString();
+    return { values: v, count: n };
+  }
+
+  $('#utm-form').addEventListener('submit', function (e) { e.preventDefault(); pastedUrl = ''; runUtm(); $('#u-out').focus(); });
+  $('#utm-form').addEventListener('input', function () { pastedUrl = ''; runUtm(); });
+  $('#u-fix').addEventListener('click', function () { pastedUrl = ''; writeForm(fixed(readForm())); runUtm(); });
+  $('#u-clear').addEventListener('click', function () { pastedUrl = ''; $('#u-paste').value = ''; $('#u-parse-msg').textContent = ''; writeForm({}); runUtm(); });
+  $('#u-faulty').addEventListener('click', function () {
+    pastedUrl = '';
+    writeForm({ url: 'https://example.com/landing/exhibition q4', source: 'LinkedIn', medium: 'Paid Social', campaign: 'Exhibition Q4', term: '', content: 'Carousel_V1' });
+    runUtm();
+  });
+  $('#u-copy').addEventListener('click', function () {
+    if (!currentUrl) return;
+    copyText(currentUrl).then(function () { flash($('#u-copied'), 'Copied to clipboard'); })
+      .catch(function () { flash($('#u-copied'), 'Copy blocked by the browser. Select the URL and copy manually.', 4000); });
+  });
+  function doParse() {
+    var res = parseIntoBuilder($('#u-paste').value), msg = $('#u-parse-msg');
+    if (res.error) { msg.textContent = res.error; return; }
+    pastedUrl = $('#u-paste').value.trim();
+    writeForm(res.values);
+    runUtm();
+    msg.textContent = res.count ? 'Parsed ' + res.count + ' UTM parameter' + (res.count > 1 ? 's' : '') + ' into the builder.' : 'No UTM parameters found in that URL.';
+  }
+  $('#u-parse').addEventListener('click', doParse);
+  $('#u-paste').addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); doParse(); } });
+
+  $('#u-examples').innerHTML = EXAMPLES.map(function (ex, i) {
+    var url = buildUrl(ex, new URL(ex.url));
+    return '<div class="card ex"><h3>' + esc(ex.title) + '</h3><dl>' +
+      '<dt>source</dt><dd><code>' + esc(ex.source) + '</code></dd>' +
+      '<dt>medium</dt><dd><code>' + esc(ex.medium) + '</code></dd>' +
+      '<dt>campaign</dt><dd><code>' + esc(ex.campaign) + '</code></dd>' +
+      (ex.term ? '<dt>term</dt><dd><code>' + esc(ex.term) + '</code></dd>' : '') +
+      '<dt>content</dt><dd><code>' + esc(ex.content) + '</code></dd></dl>' +
+      '<div class="u">' + esc(url) + '</div>' +
+      '<button type="button" class="btn" data-ex="' + i + '">Load into builder</button></div>';
+  }).join('');
+  $('#u-examples').addEventListener('click', function (e) {
+    var b = e.target.closest('button[data-ex]');
+    if (!b) return;
+    pastedUrl = '';
+    writeForm(EXAMPLES[+b.getAttribute('data-ex')]); runUtm();
+    window.scrollTo(0, 0);
+  });
+  writeForm(EXAMPLES[0]);
+  runUtm();
+
+  /* =====================================================
+     CAMPAIGN DATA & METRICS
+     ===================================================== */
+  // Fictional, simulated starter dataset, used exactly as supplied.
+  var DATA = [
+    { campaign: 'Conf Registration', source: 'google', medium: 'cpc', spend: 12000, sessions: 400, forms: 20, sals: 6 },
+    { campaign: 'Exhibition Q4', source: 'linkedin', medium: 'paid-social', spend: 12000, sessions: 240, forms: 18, sals: 9 },
+    { campaign: 'Ops Checklist', source: 'newsletter', medium: 'email', spend: 4000, sessions: 300, forms: 24, sals: 5 },
+    { campaign: 'Check-in Search', source: 'google', medium: 'cpc', spend: 8000, sessions: 200, forms: 16, sals: 8 },
+    { campaign: 'Agency Prospecting', source: 'linkedin', medium: 'paid-social', spend: 10000, sessions: 180, forms: 9, sals: 5 }
+  ];
+  var EXPECTED = { spend: 46000, sessions: 1320, forms: 87, sals: 33 };
+  var inr0 = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 });
+  var inr2 = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  var numF = new Intl.NumberFormat('en-IN');
+  function fPct(x) { return x == null ? '—' : x.toFixed(2) + '%'; }
+  function fInr2(x) { return x == null ? '—' : inr2.format(x); }
+  function sm(r) { return r.source + ' / ' + r.medium; }
+
+  function totals(rows) {
+    return rows.reduce(function (a, r) {
+      return { spend: a.spend + r.spend, sessions: a.sessions + r.sessions, forms: a.forms + r.forms, sals: a.sals + r.sals };
+    }, { spend: 0, sessions: 0, forms: 0, sals: 0 });
+  }
+  function metrics(t) {
+    return {
+      cr: t.sessions > 0 ? t.forms / t.sessions * 100 : null,
+      cpf: t.forms > 0 ? t.spend / t.forms : null,
+      cps: t.sals > 0 ? t.spend / t.sals : null,
+      f2s: t.forms > 0 ? t.sals / t.forms * 100 : null
+    };
+  }
+  function groupBy(rows) {
+    var out = [], map = {};
+    rows.forEach(function (r) { var k = sm(r); if (!map[k]) { map[k] = { key: k, rows: [] }; out.push(map[k]); } map[k].rows.push(r); });
+    return out;
+  }
+  function extreme(rows, get, wantMin) {
+    var vals = rows.map(function (r) { return { r: r, v: get(r) }; }).filter(function (o) { return o.v != null; });
+    if (!vals.length) return null;
+    var best = vals.reduce(function (m, o) { return wantMin ? Math.min(m, o.v) : Math.max(m, o.v); }, vals[0].v);
+    return { v: best, names: vals.filter(function (o) { return Math.abs(o.v - best) < 1e-9; }).map(function (o) { return o.r.campaign; }) };
+  }
+  function topSalCampaign(rows) {
+    if (!rows.length) return null;
+    return rows.slice().sort(function (a, b) {
+      if (b.sals !== a.sals) return b.sals - a.sals;
+      return (metrics(a).cps == null ? Infinity : metrics(a).cps) - (metrics(b).cps == null ? Infinity : metrics(b).cps);
+    })[0];
+  }
+
+  /* ---------- shared filter state ---------- */
+  var pState = { q: '', sm: 'all', sort: 'default' };
+  var currentRows = DATA.slice();
+
+  (function buildSelects() {
+    var seen = [];
+    DATA.forEach(function (r) { if (seen.indexOf(sm(r)) < 0) seen.push(sm(r)); });
+    var html = '<option value="all">All channels</option>' + seen.map(function (s) { return '<option value="' + esc(s) + '">' + esc(s) + '</option>'; }).join('');
+    $$('.f-sm').forEach(function (s) { s.innerHTML = html; });
+  })();
+
+  function getRows() {
+    var q = pState.q.trim().toLowerCase();
+    var rows = DATA.filter(function (r) {
+      if (pState.sm !== 'all' && sm(r) !== pState.sm) return false;
+      if (q && (r.campaign + ' ' + r.source + ' ' + r.medium + ' ' + sm(r)).toLowerCase().indexOf(q) < 0) return false;
+      return true;
+    });
+    var key = pState.sort;
+    if (key !== 'default') {
+      rows = rows.slice().sort(function (a, b) {
+        var ma = metrics(a), mb = metrics(b);
+        if (key === 'spend') return b.spend - a.spend;
+        if (key === 'cr') return (mb.cr || 0) - (ma.cr || 0);
+        var va = key === 'cpf' ? ma.cpf : ma.cps, vb = key === 'cpf' ? mb.cpf : mb.cps;
+        return (va == null ? Infinity : va) - (vb == null ? Infinity : vb);
+      });
+    }
+    return rows;
+  }
+
+  /* ---------- renderers ---------- */
+  function kpiHtml(rows) {
+    var t = totals(rows), m = metrics(t), empty = rows.length === 0, d = '—';
+    var list = [
+      ['Total spend', empty ? d : inr0.format(t.spend), 'Sum of campaign spend', 'Sum of campaign spend, in INR.', false],
+      ['Sessions', empty ? d : numF.format(t.sessions), 'Landing-page visits', 'Visits attributed to the campaigns.', false],
+      ['Form submissions', empty ? d : numF.format(t.forms), 'Successful submissions', 'Successful demo-request form submissions.', false],
+      ['Sales accepted leads', empty ? d : numF.format(t.sals), 'Accepted by sales', 'Leads reviewed and accepted by sales (SALs).', false],
+      ['Session→form rate', empty ? d : fPct(m.cr), empty ? '' : numF.format(t.forms) + ' ÷ ' + numF.format(t.sessions) + ' × 100', 'Forms ÷ Sessions × 100, from summed totals.', true],
+      ['Cost per form', empty ? d : fInr2(m.cpf), empty ? '' : inr0.format(t.spend) + ' ÷ ' + numF.format(t.forms), 'Spend ÷ Forms, from summed totals.', true],
+      ['Cost per SAL', empty ? d : fInr2(m.cps), empty ? '' : inr0.format(t.spend) + ' ÷ ' + numF.format(t.sals), 'Spend ÷ SALs, from summed totals.', true]
+    ];
+    return list.map(function (k) {
+      return '<div class="kpi' + (k[4] ? ' rate' : '') + '"><div class="k">' + k[0] + infoTip(k[3]) + '</div><div class="v">' + k[1] + '</div><div class="f">' + k[2] + '</div></div>';
+    }).join('');
+  }
+
+  function tableRows(rows, withF2S) {
+    var cols = withF2S ? 10 : 9;
+    if (!rows.length) return '<tr><td colspan="' + cols + '" class="muted">No campaigns match. Clear the search or choose "All channels".</td></tr>';
+    return rows.map(function (r) {
+      var mm = metrics(r);
+      return '<tr><td><strong>' + esc(r.campaign) + '</strong></td><td><span class="chip">' + esc(sm(r)) + '</span></td>' +
+        '<td class="num">' + inr0.format(r.spend) + '</td><td class="num">' + numF.format(r.sessions) + '</td>' +
+        '<td class="num">' + numF.format(r.forms) + '</td><td class="num">' + numF.format(r.sals) + '</td>' +
+        '<td class="num">' + fPct(mm.cr) + '</td><td class="num">' + fInr2(mm.cpf) + '</td><td class="num">' + fInr2(mm.cps) + '</td>' +
+        (withF2S ? '<td class="num">' + fPct(mm.f2s) + '</td>' : '') + '</tr>';
+    }).join('');
+  }
+  function tableFoot(rows, withF2S) {
+    if (!rows.length) return '';
+    var t = totals(rows), m = metrics(t);
+    return '<tr><td colspan="2">Total</td><td class="num">' + inr0.format(t.spend) + '</td><td class="num">' + numF.format(t.sessions) + '</td><td class="num">' + numF.format(t.forms) + '</td><td class="num">' + numF.format(t.sals) + '</td>' +
+      '<td class="num">' + fPct(m.cr) + '</td><td class="num">' + fInr2(m.cpf) + '</td><td class="num">' + fInr2(m.cps) + '</td>' + (withF2S ? '<td class="num">' + fPct(m.f2s) + '</td>' : '') + '</tr>';
+  }
+
+  function hlCard(label, tip, name, sub, chip) {
+    return '<div class="k">' + label + infoTip(tip) + '</div><div class="nm">' + name + '</div><div class="vv">' + sub + '</div>' + (chip ? '<span class="chip">' + chip + '</span>' : '');
+  }
+  function highlights(rows) {
+    var b = topSalCampaign(rows), lc = extreme(rows, function (r) { return metrics(r).cps; }, true);
+    var best = b ? hlCard('Highest SAL volume', 'The campaign with the most sales accepted leads; ties go to the lower cost per SAL. Not a ranking across all metrics.', esc(b.campaign),
+      numF.format(b.sals) + ' SALs · ' + fInr2(metrics(b).cps) + ' per SAL', esc(sm(b)))
+      : hlCard('Highest SAL volume', 'The campaign with the most sales accepted leads; ties go to the lower cost per SAL. Not a ranking across all metrics.', '—', 'No campaigns selected', '');
+    var low = lc ? hlCard('Lowest cost per SAL', 'The lowest Spend ÷ SALs among the campaigns shown.', esc(lc.names.join(' & ')),
+      fInr2(lc.v) + ' per SAL', esc(lc.names.length === 1 ? sm(rows.filter(function (r) { return r.campaign === lc.names[0]; })[0]) : 'tie'))
+      : hlCard('Lowest cost per SAL', 'The lowest Spend ÷ SALs among the campaigns shown.', '—', 'No campaigns selected', '');
+    return { best: best, low: low };
+  }
+
+  function insightsList(rows) {
+    if (!rows.length) return ['No campaigns selected.'];
+    if (rows.length === 1) return ['Only one campaign is showing. Widen the filter to compare campaigns.'];
+    var join = function (n) { return n.join(' and '); }, out = [];
+    var a = extreme(rows, function (r) { return metrics(r).cps; }, true);
+    var b = extreme(rows, function (r) { return metrics(r).cps; }, false);
+    var c = extreme(rows, function (r) { return metrics(r).cr; }, false);
+    var d = extreme(rows, function (r) { return metrics(r).f2s; }, false);
+    var f = extreme(rows, function (r) { return r.forms; }, false);
+    var s = extreme(rows, function (r) { return r.sals; }, false);
+    if (a) out.push('Lowest cost per SAL: <strong>' + esc(join(a.names)) + '</strong> (' + fInr2(a.v) + ').');
+    if (b && (!a || b.v !== a.v)) out.push('Highest cost per SAL: <strong>' + esc(join(b.names)) + '</strong> (' + fInr2(b.v) + ').');
+    if (c) out.push('Best session-to-form rate: <strong>' + esc(join(c.names)) + '</strong> (' + fPct(c.v) + ').');
+    if (d) out.push('Best form-to-SAL rate: <strong>' + esc(join(d.names)) + '</strong> (' + fPct(d.v) + ').');
+    if (f && s && join(f.names) !== join(s.names)) out.push('Most forms: <strong>' + esc(join(f.names)) + '</strong> (' + f.v + '), but most SALs: <strong>' + esc(join(s.names)) + '</strong> (' + s.v + '). Form volume and lead quality do not always move together.');
+    var g = groupBy(rows);
+    if (g.length > 1) {
+      var T = totals(rows), top = null;
+      g.forEach(function (x) {
+        var t = totals(x.rows), diff = (T.sals ? t.sals / T.sals : 0) - (T.spend ? t.spend / T.spend : 0);
+        if (!top || diff > top.diff) top = { key: x.key, diff: diff, sp: T.spend ? t.spend / T.spend * 100 : 0, sa: T.sals ? t.sals / T.sals * 100 : 0 };
+      });
+      if (top && top.diff > 0) out.push('<strong>' + esc(top.key) + '</strong> delivers ' + top.sa.toFixed(1) + '% of SALs on ' + top.sp.toFixed(1) + '% of spend.');
+    }
+    return out;
+  }
+  function fillList(el, items, max) { el.innerHTML = items.slice(0, max || items.length).map(function (x) { return '<li>' + x + '</li>'; }).join(''); }
+
+  function renderPerf() {
+    var rows = getRows(); currentRows = rows;
+    $$('.f-sm').forEach(function (s) { s.value = pState.sm; });
+    $$('.f-sort').forEach(function (s) { s.value = pState.sort; });
+    $$('.f-q').forEach(function (s) { s.value = pState.q; });
+    var note = 'Showing ' + rows.length + ' of ' + DATA.length + ' campaigns' + (rows.length === 0 ? ' · no matches' : '');
+    $('#cp-count').textContent = note + ' · amounts in INR';
+    $('#ov-count').textContent = note;
+    $('#ov-kpis').innerHTML = kpiHtml(rows);
+    $('#cp-kpis').innerHTML = kpiHtml(rows);
+    $('#ov-body').innerHTML = tableRows(rows, false);
+    $('#ov-foot').innerHTML = tableFoot(rows, false);
+    $('#cp-body').innerHTML = tableRows(rows, true);
+    $('#cp-foot').innerHTML = tableFoot(rows, true);
+    var hl = highlights(rows);
+    $('#ov-best').innerHTML = hl.best; $('#ov-low').innerHTML = hl.low;
+    var ins = insightsList(rows);
+    fillList($('#ov-insights'), ins, 4); fillList($('#cp-insights'), ins);
+    var g = groupBy(rows);
+    $('#cp-roll').innerHTML = g.length ? g.map(function (x) {
+      var gt = totals(x.rows), gm = metrics(gt);
+      return '<tr><td><span class="chip">' + esc(x.key) + '</span></td><td class="num">' + inr0.format(gt.spend) + '</td><td class="num">' + numF.format(gt.sessions) + '</td><td class="num">' + numF.format(gt.forms) + '</td><td class="num">' + numF.format(gt.sals) + '</td><td class="num">' + fPct(gm.cr) + '</td><td class="num">' + fInr2(gm.cpf) + '</td><td class="num">' + fInr2(gm.cps) + '</td></tr>';
+    }).join('') : '<tr><td colspan="8" class="muted">No data for the current filters.</td></tr>';
+    drawAllVisible();
+  }
+
+  (function recon() {
+    var t = totals(DATA), m = metrics(t), el = $('#recon');
+    var ok = t.spend === EXPECTED.spend && t.sessions === EXPECTED.sessions && t.forms === EXPECTED.forms && t.sals === EXPECTED.sals &&
+      Math.abs(m.cr - 6.59) < 0.005 && Math.abs(m.cpf - 528.74) < 0.005 && Math.abs(m.cps - 1393.94) < 0.005;
+    el.className = ok ? 'ok-t' : 'bad-t';
+    el.textContent = ok ? 'Data check passed: full-dataset totals reconcile with source figures' : 'Data check failed: totals do not match source figures';
+  })();
+
+  $('#p-q').addEventListener('input', function (e) { pState.q = e.target.value; renderPerf(); });
+  $$('.f-sm').forEach(function (s) { s.addEventListener('change', function (e) { pState.sm = e.target.value; renderPerf(); }); });
+  $('#p-sort').addEventListener('change', function (e) { pState.sort = e.target.value; renderPerf(); });
+  $$('.f-reset').forEach(function (b) { b.addEventListener('click', function () { pState = { q: '', sm: 'all', sort: 'default' }; renderPerf(); }); });
+
+  /* =====================================================
+     CHARTS (Chart.js)
+     ===================================================== */
+  var PAL = { blue: '#2563eb', navy: '#0f1f3d', light: '#b7cdf8', mid: '#6e9bf0', grey: '#cbd5e1' };
+  var money = function (v) { return v == null ? '—' : '₹' + numF.format(Math.round(v)); };
+  var plain = function (v) { return v == null ? '—' : numF.format(v); };
+  var pc = function (v) { return v == null ? '—' : Number(v).toFixed(2) + '%'; };
+  var NARROW = false;   // set from the canvas width on every draw
+  function wrap(s) {
+    var max = NARROW ? 9 : 11, words = String(s).split(' '), lines = [], cur = '';
+    words.forEach(function (w) { if (cur && (cur + ' ' + w).length > max) { lines.push(cur); cur = w; } else cur = cur ? cur + ' ' + w : w; });
+    if (cur) lines.push(cur);
+    lines = lines.map(function (l) { return l.length > max + 4 ? l.slice(0, max + 3) + '…' : l; });
+    if (lines.length > 3) { lines = lines.slice(0, 3); lines[2] = lines[2].replace(/…$/, '') + '…'; }
+    return lines;
+  }
+  function baseOpts(fmt, legend, rows) {
+    return {
+      responsive: true, maintainAspectRatio: false, animation: false,
+      plugins: {
+        legend: { display: legend, position: 'bottom', labels: { boxWidth: 10, boxHeight: 10, font: { size: 11 } } },
+        tooltip: { callbacks: {
+          title: function (i) { return rows[i[0].dataIndex] ? rows[i[0].dataIndex].campaign : ''; },
+          label: function (c) { return (c.dataset.label ? c.dataset.label + ': ' : '') + fmt(c.parsed.y); }
+        } }
+      },
+      scales: {
+        y: { beginAtZero: true, grid: { color: '#eef1f6' }, border: { display: false }, ticks: { font: { size: 11 }, callback: function (v) { return fmt(v); } } },
+        x: { grid: { display: false }, ticks: { font: { size: NARROW ? 10 : 11 }, maxRotation: 0, autoSkip: false } }
+      }
+    };
+  }
+  function ds(label, color, data) { return { label: label, data: data, backgroundColor: color, borderRadius: 4, maxBarThickness: 40 }; }
+  function labelsOf(rows) { return rows.map(function (r) { return wrap(r.campaign); }); }
+
+  var CFG = {};
+  CFG.perf = function (rows) {
+    var o = baseOpts(plain, true, rows), ms = rows.map(metrics);
+    o.scales.y1 = { position: 'right', beginAtZero: true, grid: { drawOnChartArea: false }, border: { display: false }, ticks: { font: { size: 11 }, callback: function (v) { return v + '%'; } } };
+    o.plugins.tooltip.callbacks.label = function (c) { return c.dataset.label + ': ' + (c.dataset.yAxisID === 'y1' ? pc(c.parsed.y) : plain(c.parsed.y)); };
+    return { type: 'bar', data: { labels: labelsOf(rows), datasets: [
+      { type: 'bar', label: 'Sessions', data: rows.map(function (r) { return r.sessions; }), backgroundColor: PAL.light, borderRadius: 4, maxBarThickness: 40, yAxisID: 'y', order: 2 },
+      { type: 'line', label: 'Session→form rate', data: ms.map(function (x) { return x.cr; }), borderColor: PAL.navy, backgroundColor: PAL.navy, pointRadius: 4, borderWidth: 2, yAxisID: 'y1', order: 1 }
+    ] }, options: o };
+  };
+  CFG.channel = function (rows) {
+    var g = groupBy(rows), data = g.map(function (x) { return totals(x.rows).spend; }), tot = data.reduce(function (a, b) { return a + b; }, 0);
+    return { type: 'doughnut', data: { labels: g.map(function (x) { return x.key; }), datasets: [{ data: data, backgroundColor: [PAL.navy, PAL.blue, PAL.light, PAL.grey], borderWidth: 2, borderColor: '#fff' }] },
+      options: { responsive: true, maintainAspectRatio: false, animation: false, cutout: '62%',
+        plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, boxHeight: 10, font: { size: 11 } } },
+          tooltip: { callbacks: { label: function (c) { return c.label + ': ' + money(c.parsed) + ' (' + (tot ? c.parsed / tot * 100 : 0).toFixed(1) + '%)'; } } } } } };
+  };
+  CFG.funnel = function (rows) {
+    return { type: 'bar', data: { labels: labelsOf(rows), datasets: [ds('Forms', PAL.blue, rows.map(function (r) { return r.forms; })), ds('SALs', PAL.navy, rows.map(function (r) { return r.sals; }))] }, options: baseOpts(plain, true, rows) };
+  };
+  CFG.spend = function (rows) {
+    return { type: 'bar', data: { labels: labelsOf(rows), datasets: [ds('Spend (₹)', PAL.blue, rows.map(function (r) { return r.spend; }))] }, options: baseOpts(money, false, rows) };
+  };
+  CFG.cr = function (rows) {
+    return { type: 'bar', data: { labels: labelsOf(rows), datasets: [ds('Session→form rate', PAL.blue, rows.map(function (r) { return metrics(r).cr; }))] }, options: baseOpts(pc, false, rows) };
+  };
+  CFG.cost = function (rows) {
+    return { type: 'bar', data: { labels: labelsOf(rows), datasets: [ds('Cost per form', PAL.mid, rows.map(function (r) { return metrics(r).cpf; })), ds('Cost per SAL', PAL.navy, rows.map(function (r) { return metrics(r).cps; }))] }, options: baseOpts(money, true, rows) };
+  };
+  var CANVAS = {
+    'ov-perf': 'perf', 'ov-channel': 'channel', 'ov-funnel': 'funnel',
+    'cp-spend': 'spend', 'cp-funnel': 'funnel', 'cp-cr': 'cr', 'cp-cost': 'cost',
+    'pr-funnel': 'funnel', 'pr-cost': 'cost', 'pr-channel': 'channel', 'pr-cr': 'cr'
+  };
+  var charts = {};
+  function drawChart(id) {
+    var el = document.getElementById(id);
+    if (!el || el.closest('[hidden]')) return;
+    var box = el.parentNode;
+    if (typeof window.Chart === 'undefined') { box.setAttribute('data-nochart', '1'); return; }
+    var rows = id.indexOf('pr-') === 0 ? DATA : currentRows;
+    NARROW = box.clientWidth < 440;
+    try {
+      if (charts[id]) { charts[id].destroy(); charts[id] = null; }
+      window.Chart.defaults.font.family = 'system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif';
+      window.Chart.defaults.color = '#3a4a66';
+      charts[id] = new window.Chart(el, CFG[CANVAS[id]](rows));
+      box.removeAttribute('data-nochart');
+    } catch (err) {
+      if (window.console) console.error(err);
+      box.setAttribute('data-nochart', '1');
+    }
+  }
+  function drawAllVisible() { Object.keys(CANVAS).forEach(drawChart); }
+
+  /* =====================================================
+     EVENT TRACKING
+     ===================================================== */
+  var EVENTS = [
+    {
+      name: 'page_view', label: 'Page View', layer: 'Website event', cls: 'l-web',
+      icon: '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>',
+      fire: 'On every landing-page load once consent allows it, and on virtual page changes in a single-page app. It is the first event in the journey and the anchor for campaign attribution.',
+      measures: 'Landing traffic by source, medium and campaign. It is the denominator for session-to-form conversion.',
+      params: ['page_path', 'page_location', 'page_title', 'page_referrer', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content', 'gclid', 'event_timestamp'],
+      pitfalls: 'Redirects that strip the query string; UTMs on internal links that start fresh sessions; consent blocking the tag.',
+      payload: { event: 'page_view', page_path: '/landing/exhibition-q4', page_location: 'https://example.com/landing/exhibition-q4?utm_source=linkedin&utm_medium=paid-social&utm_campaign=exhibition-q4', utm_source: 'linkedin', utm_medium: 'paid-social', utm_campaign: 'exhibition-q4', event_timestamp: '2026-01-15T10:15:30+05:30' }
+    },
+    {
+      name: 'cta_click', label: 'CTA Click', layer: 'Website event', cls: 'l-web',
+      icon: '<path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/><path d="M13 13l6 6"/>',
+      fire: 'When a visitor clicks a "Book a demo" style call to action. Fire once per click, on the element click, not on page load.',
+      measures: 'Buying intent and which CTA placement or copy attracts clicks. It is an engagement signal, not a conversion.',
+      params: ['cta_id', 'cta_text', 'cta_location', 'page_path', 'utm_source', 'utm_medium', 'utm_campaign', 'event_timestamp'],
+      pitfalls: 'Counting it as a conversion; firing on every click inside a large clickable container; no stable cta_id, so reports break when copy changes.',
+      payload: { event: 'cta_click', cta_id: 'hero-book-demo', cta_text: 'Book a demo', cta_location: 'hero', page_path: '/landing/exhibition-q4', utm_source: 'linkedin', utm_medium: 'paid-social', utm_campaign: 'exhibition-q4', event_timestamp: '2026-01-15T10:15:48+05:30' }
+    },
+    {
+      name: 'form_start', label: 'Form Start', layer: 'Website event', cls: 'l-web',
+      icon: '<path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>',
+      fire: 'The first time a visitor interacts with a field of the demo form (first focus or first keystroke). Once per form per page view.',
+      measures: 'Form engagement and drop-off: starts compared with successful submissions shows friction in the form itself.',
+      params: ['form_id', 'form_name', 'page_path', 'utm_source', 'utm_medium', 'utm_campaign', 'event_timestamp'],
+      pitfalls: 'Firing on every field (inflates counts); firing on page load; the built-in enhanced-measurement version may not match the form you care about.',
+      payload: { event: 'form_start', form_id: 'demo-request', form_name: 'Demo request', page_path: '/demo', utm_source: 'linkedin', utm_medium: 'paid-social', utm_campaign: 'exhibition-q4', event_timestamp: '2026-01-15T10:16:20+05:30' }
+    },
+    {
+      name: 'demo_request_success', alias: 'successful form_submit', label: 'Successful Submission', layer: 'Analytics conversion', cls: 'l-conv',
+      icon: '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>',
+      fire: 'Only after the submission is confirmed successful: the server returned success or the confirmation state appeared. Never on the button click and never on a validation error. Exactly once per submission.',
+      measures: 'The primary conversion: a completed demo request. It is the numerator for session-to-form rate and the denominator for cost per form.',
+      params: ['form_id', 'form_name', 'submission_id', 'page_path', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content', 'event_timestamp'],
+      pitfalls: 'Duplicate firing (click plus thank-you page); sending personal data such as email or phone to analytics; no submission_id to de-duplicate or reconcile with the CRM.',
+      payload: { event: 'demo_request_success', form_id: 'demo-request', submission_id: 'sub_7f3a91', page_path: '/demo/thank-you', utm_source: 'linkedin', utm_medium: 'paid-social', utm_campaign: 'exhibition-q4', event_timestamp: '2026-01-15T10:17:42+05:30' }
+    },
+    {
+      name: 'CRM lead created', label: 'CRM Lead', layer: 'CRM record', cls: 'l-crm',
+      icon: '<ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>',
+      fire: 'When the CRM creates (or updates) a contact from the submission. This is a server-side outcome, not a browser event, and it should arrive within seconds with the campaign fields attached.',
+      measures: 'Lead creation by campaign. It is the first CRM record that ties marketing spend to pipeline.',
+      params: ['lead_source', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content', 'first_touch_campaign', 'landing_page', 'form_id', 'submission_id', 'created_at', 'lead_status'],
+      pitfalls: 'Hidden fields not mapped to CRM properties; later visits overwriting the original source; no submission_id to match with the analytics event.',
+      payload: { object: 'lead', lead_status: 'new', lead_source: 'linkedin / paid-social', utm_source: 'linkedin', utm_medium: 'paid-social', utm_campaign: 'exhibition-q4', landing_page: '/landing/exhibition-q4', form_id: 'demo-request', submission_id: 'sub_7f3a91', created_at: '2026-01-15T10:17:43+05:30' }
+    },
+    {
+      name: 'lead_status = SAL', label: 'SAL', layer: 'Sales stage', cls: 'l-sales',
+      icon: '<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/>',
+      fire: 'When a sales rep reviews the lead and accepts it, moving its status to Sales Accepted in the CRM. This is a human decision recorded in the CRM, not a browser event.',
+      measures: 'Lead quality and the marketing-to-sales handoff. It is the denominator for cost per SAL, the metric that links campaigns to sales effort.',
+      params: ['lead_status', 'sal_at', 'owner', 'utm_source', 'utm_medium', 'utm_campaign', 'submission_id'],
+      pitfalls: 'No agreed SAL definition; statuses changed outside the CRM; SAL data never joined back to campaign reporting, so cost per SAL cannot be calculated.',
+      payload: { object: 'lead', lead_status: 'sal', sal_at: '2026-01-16T14:05:00+05:30', owner: 'sales-rep-01', utm_source: 'linkedin', utm_medium: 'paid-social', utm_campaign: 'exhibition-q4', submission_id: 'sub_7f3a91' }
+    }
+  ];
+  function funnelHtml(interactive) {
+    return EVENTS.map(function (e, i) {
+      var inner = '<span class="fn-ic">' + svg(e.icon) + '</span><span class="fn-txt"><span class="fn-t">' + esc(e.label) + '</span><span class="fn-c">' + esc(e.name) + '</span><span class="layer ' + e.cls + '">' + esc(e.layer) + '</span></span>';
+      var node = interactive
+        ? '<button type="button" class="fn-node" data-i="' + i + '" aria-pressed="false">' + inner + '</button>'
+        : '<div class="fn-node">' + inner + '</div>';
+      return '<div class="fn-item">' + node + '</div>' + (i < EVENTS.length - 1 ? '<span class="fn-line" aria-hidden="true"></span>' : '');
+    }).join('');
+  }
+  // the text wrapper must stack vertically on desktop, so style it inline-free through CSS fallback
+  var fnStyle = document.createElement('style');
+  fnStyle.textContent = '.fn-txt{display:flex;flex-direction:column;align-items:center;gap:3px}@media (max-width:900px){.fn-txt{align-items:flex-start}}';
+  document.head.appendChild(fnStyle);
+
+  $('#fn').innerHTML = funnelHtml(true);
+  var evIdx = 0;
+  function renderEvent() {
+    var e = EVENTS[evIdx];
+    $$('#fn .fn-node').forEach(function (b, i) { b.setAttribute('aria-pressed', i === evIdx ? 'true' : 'false'); });
+    $('#ev-main').innerHTML =
+      '<div><h3 style="font-size:1.02rem"><code>' + esc(e.name) + '</code> <span class="layer ' + e.cls + '">' + esc(e.layer) + '</span></h3>' + (e.alias ? '<p class="small muted" style="margin-top:3px">Also called ' + esc(e.alias) + '</p>' : '') + '</div>' +
+      '<div><h4>Triggers when</h4><p>' + esc(e.fire) + '</p></div>' +
+      '<div><h4>Measures</h4><p>' + esc(e.measures) + '</p></div>' +
+      '<div><h4>Common tracking mistakes</h4><p>' + esc(e.pitfalls) + '</p></div>';
+    $('#ev-side').innerHTML =
+      '<h4 style="margin-bottom:8px">Important parameters</h4><div class="chips">' + e.params.map(function (p) { return '<span class="chip">' + esc(p) + '</span>'; }).join('') + '</div>' +
+      '<details class="fold" style="margin-top:14px"><summary>Illustrative payload <span class="muted small" style="font-weight:500">sample values, nothing is sent</span></summary><div class="fold-b"><pre><code>' + esc(JSON.stringify(e.payload, null, 2)) + '</code></pre></div></details>';
+  }
+  $('#fn').addEventListener('click', function (ev) {
+    var b = ev.target.closest('.fn-node'); if (!b) return;
+    evIdx = +b.getAttribute('data-i'); renderEvent();
+  });
+  renderEvent();
+
+  /* =====================================================
+     TROUBLESHOOTING
+     ===================================================== */
+  var CASES = [
+    {
+      tab: 'Inconsistent UTM naming', short: 'Casing and spelling split one channel into several rows', tag: 'Data quality',
+      icon: '<path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/>',
+      symptom: '<code>?utm_Source=LinkedIn&amp;utm_medium=Paid Social</code> (no <code>utm_campaign</code> either).',
+      cause: [
+        'The link was typed by hand or copied between spreadsheets without a controlled vocabulary or a builder.',
+        '<strong>Parameter name casing:</strong> <code>utm_Source</code> is not the standard <code>utm_source</code>. Parameter names are case-sensitive, so some tools may not read it as the source at all. Verify in DebugView.',
+        '<strong>Value casing:</strong> reports treat <code>LinkedIn</code> and <code>linkedin</code> as separate values.',
+        '<strong>Naming and spaces:</strong> <code>Paid Social</code> is encoded as <code>Paid%20Social</code> and is a different value from <code>paid-social</code>. It may also miss the rules that place traffic in the Paid Social channel group.'
+      ],
+      impact: 'One channel splits into several rows (<code>LinkedIn / Paid Social</code>, <code>linkedin / paid-social</code>, ...), campaigns look smaller than they are, spend-to-session joins in spreadsheets or BI tools break, and traffic can land in "Unassigned" or "Other".',
+      steps: [
+        'In GA4 Traffic acquisition, view <em>Session source / medium</em> and <em>Session campaign</em> and look for case or spelling variants of one channel.',
+        'Open the suspect link in a clean browser session and watch GA4 Realtime or DebugView for the source and medium it records.',
+        'Export the live URLs from LinkedIn Ads, Google Ads and email tools and list every distinct source and medium value.',
+        'Find the origin of the bad links: a template, a spreadsheet or one person\'s habit.'
+      ],
+      fix: [
+        'Standardise on <code>utm_source=linkedin&amp;utm_medium=paid-social&amp;utm_campaign=&lt;campaign-name&gt;</code>: lowercase, hyphens, no spaces.',
+        'Generate links only through the UTM Manager and keep a short list of approved sources and mediums.',
+        'Set URL parameters or a tracking template at the ad-platform level so every ad inherits the correct values.',
+        'Historical rows stay split. Normalise them in the reporting layer (for example lowercase and map variants) instead of expecting GA4 to rewrite the past.'
+      ],
+      verify: [
+        'Click the corrected link: Realtime or DebugView shows <code>linkedin / paid-social</code> and the campaign name.',
+        'After GA4 has processed data (often within 24 to 48 hours), Traffic acquisition shows one row for the channel.',
+        'Re-audit the live ad URLs: zero variants remain.',
+        'Run the URL through the checker below: no problems.'
+      ],
+      brief: { problem: 'utm_Source=LinkedIn and Paid Social split one channel across several report rows.', fix: 'Lowercase, hyphenated values from a fixed vocabulary, generated in the UTM Manager.', verify: 'One source / medium row for the channel after GA4 processes the data.' },
+      checker: true
+    },
+    {
+      tab: 'Duplicate form submissions', short: 'Click and thank-you page both count the conversion', tag: 'Conversion accuracy',
+      icon: '<rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>',
+      symptom: 'The form event fires on the button click <em>and</em> on thank-you page load, so one real submission is counted twice or more.',
+      cause: [
+        'Two triggers feed the same conversion: one on the submit button click, one on the thank-you page view.',
+        'A button click is <strong>not proof of success</strong>: validation errors, network failures, spam blocks and double-clicks all produce clicks without a completed submission.',
+        'Other duplicate sources: both a hard-coded tag and a GTM tag sending the event; a thank-you page that fires again on refresh or back navigation; AJAX forms that re-render the success state.'
+      ],
+      impact: 'Inflated conversions, understated cost per form, ad-platform bidding trained on false conversions, and a mismatch between analytics form counts and CRM leads.',
+      steps: [
+        'List every tag and trigger that can send the form event in GTM, plus any hard-coded script on the page.',
+        'In GTM Preview and GA4 DebugView, submit once with valid data and count the events fired.',
+        'Submit with invalid data: if the event still fires, the click trigger is the culprit.',
+        'Reload the thank-you page and press Back: check whether the event fires again.',
+        'Compare form events with CRM lead creation for the same period.'
+      ],
+      fix: [
+        'Choose <strong>one authoritative success trigger</strong>: a data-layer push of <code>demo_request_success</code> after the server confirms success (or the thank-you state on first load only).',
+        'Rename the click event to something non-conversion such as <code>form_submit_attempt</code>, or remove it.',
+        'Mark only <code>demo_request_success</code> as the key event.',
+        'Add a <code>submission_id</code> and suppress repeat fires (for example a one-time flag in storage) so a reload cannot recount.',
+        'Remove duplicate tags so only one system sends the event.'
+      ],
+      verify: [
+        'One valid submission produces exactly one <code>demo_request_success</code> in DebugView.',
+        'An invalid submission or a double-click produces none (or only one).',
+        'Reloading the thank-you page produces no new event.',
+        'Analytics form counts match CRM lead creation within a small, explainable margin.'
+      ],
+      brief: { problem: 'The button click and the thank-you page both fire the conversion.', fix: 'One trigger, fired only after confirmed success, with a submission ID to block repeats.', verify: 'One valid submit gives one event; reloading the page adds none.' }
+    },
+    {
+      tab: 'UTMs missing from CRM', short: 'Campaign data is lost between landing page and CRM lead', tag: 'Attribution',
+      icon: '<ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>',
+      symptom: 'The landing URL shows UTMs and analytics attributes the visit correctly, but the CRM lead has empty source, medium and campaign fields.',
+      cause: [
+        'The form has <strong>no hidden fields</strong> for the UTMs, or the fields exist but are never populated.',
+        'Field names do not match the CRM property names, or the form-to-CRM integration is not mapping them.',
+        'UTMs were <strong>not persisted</strong>: the visitor moved from the landing page to the demo page and the query string was dropped, or <code>sessionStorage</code> was lost in a new tab.',
+        'The script that fills the hidden fields runs before the form is rendered (an embedded or iframe form), or consent settings block storage.',
+        'A redirect strips the query string, or a later visit overwrites the original values with blanks.'
+      ],
+      impact: 'Leads and SALs cannot be tied to campaigns, so cost per lead and cost per SAL cannot be reported, and sales cannot see which marketing touched the lead.',
+      steps: [
+        'Open the landing page with a unique test campaign such as <code>utm_campaign=qa-test-001</code> and confirm it appears in the URL and in analytics.',
+        'Navigate to the form page the way a visitor would and check whether the UTMs are still available (URL or stored value).',
+        'Inspect the form in DevTools: are the hidden inputs present, correctly named and filled <em>before</em> you submit?',
+        'Check the Network tab: does the submission request contain the campaign fields?',
+        'Open the test lead in the CRM and compare it with the request; check the form-tool field mapping.'
+      ],
+      fix: [
+        'Add hidden fields for <code>utm_source</code>, <code>utm_medium</code>, <code>utm_campaign</code>, <code>utm_term</code>, <code>utm_content</code>, <code>landing_page</code> and <code>form_id</code>.',
+        'Persist UTMs on arrival in a first-party cookie or <code>localStorage</code> and populate the fields once the form has rendered.',
+        'Map each field to a CRM property; keep first-touch and last-touch separate and never overwrite with empty values.',
+        'Fix redirects so the query string is preserved, and review consent handling for the storage used.'
+      ],
+      verify: [
+        'A fresh test submission arrives in the CRM with source, medium and campaign matching the tagged link.',
+        'Repeat via a multi-page path (landing, another page, form) and in a new tab.',
+        'Check a returning visit does not overwrite first-touch fields.',
+        'Reconcile a day of leads: the share with empty campaign fields drops to an expected level.'
+      ],
+      brief: { problem: 'UTMs visible on the landing page are empty on the CRM lead.', fix: 'Persist the UTMs, fill hidden fields, and map them to CRM properties.', verify: 'A test lead with a unique campaign arrives with every campaign field filled.' }
+    }
+  ];
+  var caseIdx = 0;
+  function lis(arr) { return arr.map(function (x) { return '<li>' + x + '</li>'; }).join(''); }
+  $('#case-cards').innerHTML = CASES.map(function (c, i) {
+    return '<button type="button" class="case-card" data-i="' + i + '" aria-pressed="false"><span class="cic">' + svg(c.icon) + '</span><span><b>' + esc(c.tab) + '</b><span class="s">' + esc(c.short) + '</span></span></button>';
+  }).join('');
+  function checkerHtml() {
+    return '<div class="card checker"><div class="card-b"><h3>URL diagnostic</h3><p class="small muted" style="margin-top:2px">Paste a tagged URL to find problems and get a corrected version.</p>' +
+      '<div class="row"><input type="text" class="inp" id="c-input" aria-label="URL to check" value="https://example.com/landing?utm_Source=LinkedIn&amp;utm_medium=Paid Social">' +
+      '<button type="button" class="btn btn-primary" id="c-run">Diagnose</button></div><div id="c-out" aria-live="polite"></div></div></div>';
+  }
+  function renderCase() {
+    var c = CASES[caseIdx];
+    $$('#case-cards .case-card').forEach(function (b, i) { b.setAttribute('aria-pressed', i === caseIdx ? 'true' : 'false'); });
+    $('#case-body').innerHTML =
+      '<div class="alert">' + I.alert + '<div><h4>Problem detected &middot; ' + esc(c.tag) + '</h4><p>' + c.symptom + '</p></div></div>' +
+      '<div class="d-grid">' +
+        '<div class="card d-card"><h4>Likely cause</h4><ul>' + lis(c.cause) + '</ul></div>' +
+        '<div class="card d-card"><h4>Impact on reporting</h4><p>' + c.impact + '</p></div>' +
+        '<div class="card d-card fix"><h4>Recommended fix</h4><ul>' + lis(c.fix) + '</ul></div>' +
+        '<div class="card d-card ver"><h4>Verification steps</h4><ol>' + lis(c.verify) + '</ol></div>' +
+      '</div>' +
+      '<details class="fold"><summary>Investigation steps</summary><div class="fold-b"><ol class="flow">' + lis(c.steps) + '</ol></div></details>' +
+      (c.checker ? checkerHtml() : '');
+    if (c.checker) wireChecker();
+  }
+  $('#case-cards').addEventListener('click', function (e) {
+    var b = e.target.closest('.case-card'); if (!b) return;
+    caseIdx = +b.getAttribute('data-i'); renderCase();
+  });
+  $('#t-to-qa').addEventListener('click', function () { location.hash = '#qa'; });
+
+  function diagnose(str) {
+    var u;
+    try { u = new URL(str.trim()); if (!/^https?:$/.test(u.protocol)) throw new Error('p'); }
+    catch (e) { return '<ul class="issues"><li class="error"><span class="b">Malformed URL</span><span>That is not a valid web address. Include <code>https://</code> and a domain.</span></li></ul>'; }
+    var fixedParams = new URLSearchParams(), rows = [], seen = {};
+    u.searchParams.forEach(function (val, key) {
+      var lk = key.toLowerCase(), isUtm = lk.indexOf('utm_') === 0, nv = val, probs = [];
+      if (isUtm) {
+        seen[lk] = true;
+        var kind = lk.slice(4);
+        nv = normalise(kind, val);
+        if (key !== lk) probs.push('parameter name has capitals (<code>' + esc(key) + '</code>)');
+        if (val !== val.toLowerCase()) probs.push('value has capitals');
+        if (/\s/.test(val.trim())) probs.push('value contains a space');
+        if (SYN[kind] && nv !== simple(val)) probs.push('non-standard name; convention is <code>' + esc(nv) + '</code>');
+      }
+      fixedParams.append(isUtm ? lk : key, nv);
+      rows.push('<tr><td><code>' + esc(key) + '</code></td><td>' + esc(val) + '</td><td class="wrap">' + (probs.length ? probs.join('; ') : '<span class="ok-t">OK</span>') + '</td><td><code>' + esc(isUtm ? lk : key) + '=' + esc(nv) + '</code></td></tr>');
+    });
+    var missing = ['utm_source', 'utm_medium', 'utm_campaign'].filter(function (k) { return !seen[k]; });
+    u.search = fixedParams.toString().replace(/\+/g, '%20');
+    return '<div class="table-wrap" style="margin-top:10px;border:1px solid var(--line);border-radius:8px"><table><thead><tr><th>Found</th><th>Value</th><th>Problems</th><th>Corrected</th></tr></thead><tbody>' + (rows.join('') || '<tr><td colspan="4" class="muted">No query parameters found.</td></tr>') + '</tbody></table></div>' +
+      (missing.length ? '<ul class="issues" style="margin-top:10px"><li class="error"><span class="b">Missing</span><span>Required parameter' + (missing.length > 1 ? 's' : '') + ' not present: <code>' + missing.join('</code>, <code>') + '</code>. Add before using the link.</span></li></ul>' : '') +
+      '<div class="lbl" style="margin:10px 0 5px">Corrected URL</div><div class="url-box">' + esc(u.toString()) + '</div>';
+  }
+  function wireChecker() {
+    var run = function () { $('#c-out').innerHTML = diagnose($('#c-input').value); };
+    $('#c-run').addEventListener('click', run);
+    $('#c-input').addEventListener('keydown', function (e) { if (e.key === 'Enter') run(); });
+    run();
+  }
+  renderCase();
+
+  /* =====================================================
+     TRACKING QA
+     ===================================================== */
+  var QA = [
+    { t: 'UTM URL validity', d: 'The tagged link opens the right page and keeps its query string through redirects.', v: ['Open the link in a clean browser window.', 'Confirm HTTP 200 and the correct page, with the UTMs still in the address bar after redirects.', 'Paste the final URL into the UTM Manager and check for errors.'] },
+    { t: 'Required campaign parameters', d: 'Every live link carries utm_source, utm_medium and utm_campaign.', v: ['Export the destination URLs from each ad platform and email tool.', 'Check that all three required parameters are present on every link.'] },
+    { t: 'Consistent naming', d: 'Lowercase, hyphenated values from the agreed vocabulary, with no variants.', v: ['Review Session source / medium and Session campaign in GA4.', 'Confirm there is one row per channel, with no case or spelling variants.'] },
+    { t: 'Page-view event firing', d: 'One page_view per landing-page load, with page_path and campaign parameters.', v: ['Use GTM Preview or GA4 DebugView.', 'Load the tagged landing page once and count page_view events.', 'Check page_path and UTM values on the event.'] },
+    { t: 'CTA click tracking', d: 'cta_click fires once per click with cta_id and location.', v: ['Click each demo CTA once.', 'Confirm one cta_click each, with the right cta_id and cta_location.'] },
+    { t: 'Form-start tracking', d: 'form_start fires on first interaction with the form, once per form per page view.', v: ['Focus the first field, then type in several others.', 'Confirm a single form_start with the correct form_id.'] },
+    { t: 'Successful form-submission tracking', d: 'demo_request_success fires only after a confirmed successful submission.', v: ['Submit valid data: the event fires after success.', 'Submit invalid data: the event does not fire.', 'Confirm it carries form_id, submission_id and UTMs.'] },
+    { t: 'Duplicate conversion prevention', d: 'One real submission is counted exactly once.', v: ['Submit once and count events.', 'Double-click the submit button.', 'Reload the thank-you page and use Back.', 'Confirm counts stay at one.'] },
+    { t: 'UTM persistence', d: 'Campaign values survive navigation from the landing page to the form page.', v: ['Land on the tagged page, browse to another page, then open the form.', 'Check the stored values and hidden fields are still populated.', 'Repeat in a new tab and after a refresh.'] },
+    { t: 'CRM attribution capture', d: 'The CRM lead holds the source, medium and campaign from the tagged visit.', v: ['Submit a test lead using a unique campaign such as qa-test-001.', 'Find the lead in the CRM and compare its fields with the link.', 'Confirm form_id, timestamp and first-touch fields too.'] }
+  ];
+  var QA_KEY = 'mmh-qa-v1', qaState = {};
+  try { qaState = JSON.parse(localStorage.getItem(QA_KEY) || '{}') || {}; } catch (e) { qaState = {}; }
+  function saveQa() { try { localStorage.setItem(QA_KEY, JSON.stringify(qaState)); } catch (e) { /* in-memory only */ } }
+  var STATUS_LABEL = { todo: 'Not tested', pass: 'Pass', fail: 'Fail', na: 'N/A' };
+  function stat(i) { return qaState[i] || 'todo'; }
+
+  $('#q-list').innerHTML = QA.map(function (q, i) {
+    var radios = ['todo', 'pass', 'fail', 'na'].map(function (s) {
+      var id = 'qa-' + i + '-' + s;
+      return '<input type="radio" name="qa-' + i + '" id="' + id + '" value="' + s + '"><label class="l-' + s + '" for="' + id + '">' + STATUS_LABEL[s] + '</label>';
+    }).join('');
+    return '<li class="qa-item" data-i="' + i + '" data-status="todo"><div><h3><span class="no">' + (i + 1) + '</span>' + esc(q.t) + '</h3><p>' + esc(q.d) + '</p>' +
+      '<details class="mini"><summary>Verification steps</summary><ol>' + q.v.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ol></details></div>' +
+      '<fieldset class="seg"><legend class="sr">Status for ' + esc(q.t) + '</legend>' + radios + '</fieldset></li>';
+  }).join('');
+
+  function renderQa() {
+    var c = { todo: 0, pass: 0, fail: 0, na: 0 };
+    QA.forEach(function (_, i) {
+      var s = stat(i); c[s]++;
+      $('.qa-item[data-i="' + i + '"]').setAttribute('data-status', s);
+      $('#qa-' + i + '-' + s).checked = true;
+    });
+    var n = QA.length, done = n - c.todo;
+    $('#q-bar').innerHTML = '<i class="p" style="width:' + c.pass / n * 100 + '%"></i><i class="f" style="width:' + c.fail / n * 100 + '%"></i><i class="na" style="width:' + c.na / n * 100 + '%"></i>';
+    $('#q-bar').setAttribute('aria-label', c.pass + ' passed, ' + c.fail + ' failed, ' + c.na + ' not applicable, ' + c.todo + ' not tested');
+    $('#q-stats').innerHTML =
+      '<div class="qs"><b>' + Math.round(done / n * 100) + '%</b><span>Tested (' + done + ' of ' + n + ')</span></div>' +
+      '<div class="qs"><b>' + c.pass + '</b><span><i class="dot" style="background:#1f9d62"></i>Passed</span></div>' +
+      '<div class="qs"><b>' + c.fail + '</b><span><i class="dot" style="background:#d64533"></i>Failed</span></div>' +
+      '<div class="qs"><b>' + c.todo + '</b><span><i class="dot" style="background:#cdd6e5"></i>Not tested' + (c.na ? ' &middot; ' + c.na + ' N/A' : '') + '</span></div>';
+    var v;
+    if (c.todo === n) v = 'Not started: ' + n + ' checks to run.';
+    else if (c.fail > 0) v = c.fail + ' check' + (c.fail > 1 ? 's' : '') + ' failing. Fix and retest before relying on this tracking.';
+    else if (c.todo > 0) v = 'In progress: ' + c.todo + ' check' + (c.todo > 1 ? 's' : '') + ' still to test, no failures so far.';
+    else v = 'All applicable checks pass.';
+    $('#q-verdict').textContent = v;
+  }
+  $('#q-list').addEventListener('change', function (e) {
+    if (!e.target.matches('input[type=radio]')) return;
+    var i = +e.target.name.replace('qa-', '');
+    qaState[i] = e.target.value; saveQa(); renderQa();
+  });
+  $('#q-reset').addEventListener('click', function () { qaState = {}; saveQa(); renderQa(); flash($('#q-copied'), 'Checklist reset.'); });
+  $('#q-copy').addEventListener('click', function () {
+    var lines = ['Tracking QA summary (statuses entered manually in Campaign Intelligence)'];
+    QA.forEach(function (q, i) { lines.push((i + 1) + '. ' + q.t + ': ' + STATUS_LABEL[stat(i)]); });
+    lines.push(''); lines.push($('#q-verdict').textContent);
+    copyText(lines.join('\n')).then(function () { flash($('#q-copied'), 'Summary copied.'); })
+      .catch(function () { flash($('#q-copied'), 'Copy blocked by the browser.', 4000); });
+  });
+  renderQa();
+
+  /* =====================================================
+     PRESENTATION MODE
+     ===================================================== */
+  var pres = $('#pres'), slides = $$('.slide', pres), presIdx = 0, presenting = false;
+  $('#pres-dots').innerHTML = slides.map(function (s, i) { return '<button type="button" data-i="' + i + '" aria-label="Go to slide ' + (i + 1) + ': ' + esc(s.getAttribute('data-title')) + '"></button>'; }).join('');
+
+  function buildPresentContent() {
+    $('#pr-kpis').innerHTML = kpiHtml(DATA);
+    var hl = highlights(DATA);
+    var cr = extreme(DATA, function (r) { return metrics(r).cr; }, false), f2 = extreme(DATA, function (r) { return metrics(r).f2s; }, false);
+    var cards = [
+      '<div class="card hl">' + hl.best + '</div>',
+      '<div class="card hl">' + hl.low + '</div>',
+      '<div class="card hl">' + hlCard('Best session→form rate', 'Forms ÷ Sessions × 100.', esc(cr.names.join(' & ')), fPct(cr.v), '') + '</div>',
+      '<div class="card hl">' + hlCard('Best form→SAL rate', 'SALs ÷ Forms × 100.', esc(f2.names.join(' & ')), fPct(f2.v), '') + '</div>'
+    ];
+    $('#pr-hl').innerHTML = cards.join('');
+    fillList($('#pr-insights'), insightsList(DATA));
+    $('#pr-fn').innerHTML = funnelHtml(false);
+    $('#pr-cases').innerHTML = CASES.map(function (c) {
+      return '<div class="card pres-case"><h3>' + esc(c.tab) + '</h3><dl><div><dt>Problem</dt><dd>' + esc(c.brief.problem) + '</dd></div><div><dt>Fix</dt><dd>' + esc(c.brief.fix) + '</dd></div><div><dt>Verify</dt><dd>' + esc(c.brief.verify) + '</dd></div></dl></div>';
+    }).join('');
+  }
+  buildPresentContent();
+
+  function gotoSlide(i) {
+    presIdx = Math.max(0, Math.min(slides.length - 1, i));
+    slides.forEach(function (s, k) { s.hidden = k !== presIdx; });
+    pres.classList.toggle('dark', presIdx === 0);
+    $('#pres-title').textContent = presIdx === 0 ? '' : slides[presIdx].getAttribute('data-title');
+    $('#pres-count').textContent = (presIdx + 1) + ' / ' + slides.length;
+    $('#pres-prev').disabled = presIdx === 0;
+    $('#pres-next').disabled = presIdx === slides.length - 1;
+    $$('#pres-dots button').forEach(function (b, k) { if (k === presIdx) b.setAttribute('aria-current', 'true'); else b.removeAttribute('aria-current'); });
+    $('#pres-stage').scrollTop = 0;
+    drawAllVisible();
+  }
+  function openPresent() {
+    if (presenting) return;
+    presenting = true;
+    pres.hidden = false;
+    document.body.classList.add('is-presenting');
+    gotoSlide(0);
+    $('#pres-next').focus();
+    $('#pres-fs').hidden = !(document.fullscreenEnabled && pres.requestFullscreen);
+  }
+  function closePresent() {
+    if (!presenting) return;
+    presenting = false;
+    pres.hidden = true;
+    document.body.classList.remove('is-presenting');
+    try { if (document.fullscreenElement && document.exitFullscreen) { var xp = document.exitFullscreen(); if (xp && xp.catch) xp.catch(function () { /* ignore */ }); } } catch (e) { /* ignore */ }
+  }
+  function exitPresent() { location.hash = '#' + lastView; setTimeout(function () { if (presenting) show(lastView); }, 0); }
+  $('#pres-prev').addEventListener('click', function () { gotoSlide(presIdx - 1); });
+  $('#pres-next').addEventListener('click', function () { gotoSlide(presIdx + 1); });
+  $('#pres-exit').addEventListener('click', exitPresent);
+  $('#pres-dots').addEventListener('click', function (e) { var b = e.target.closest('button[data-i]'); if (b) gotoSlide(+b.getAttribute('data-i')); });
+  $('#pres-fs').addEventListener('click', function () {
+    try {
+      var fp = document.fullscreenElement ? document.exitFullscreen() : pres.requestFullscreen();
+      if (fp && fp.catch) fp.catch(function () { /* fullscreen refused by the browser */ });
+    } catch (e) { /* unsupported */ }
+  });
+  document.addEventListener('keydown', function (e) {
+    if (!presenting) return;
+    var tag = e.target && e.target.tagName, onCtl = tag === 'BUTTON' || tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA';
+    switch (e.key) {
+      case 'ArrowRight': case 'PageDown': e.preventDefault(); gotoSlide(presIdx + 1); break;
+      case 'ArrowLeft': case 'PageUp': e.preventDefault(); gotoSlide(presIdx - 1); break;
+      case ' ': if (!onCtl) { e.preventDefault(); gotoSlide(presIdx + 1); } break;
+      case 'Home': e.preventDefault(); gotoSlide(0); break;
+      case 'End': e.preventDefault(); gotoSlide(slides.length - 1); break;
+      case 'Escape': e.preventDefault(); exitPresent(); break;
+      default: break;
+    }
+  });
+  var resizeT;
+  window.addEventListener('resize', function () { clearTimeout(resizeT); resizeT = setTimeout(drawAllVisible, 150); });
+
+  /* ---------- start ---------- */
+  renderPerf();
+  show(location.hash.slice(1) || 'overview');
+})();
+</script>
+</body>
+</html>
